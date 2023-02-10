@@ -55,7 +55,7 @@ Each manifest file has 4 common fields.
 
 - spec : define specification of this objects
 
-```
+```yaml
 apiVersion: v1
 kind: pod
 metadata:
@@ -68,44 +68,81 @@ spec:
   -name: nginx-container
   image: nginx
   
-
-
 ```
 
 
 # Create,display,delete & describe pod
 
+- `$ Kubectl create -f <pod path>`
+- `$ Kubectl  get pods`
+- `$ Kubectl get pod -o wide`
+- `$ Kubectl get pod <pod-name> -o yaml`
+- `$ Kubectl describe pod nginx`
+- `$ Kubectl delete pod <pod-name>`
+- `$ kubectl logs <pod-name> -f`
+
+# Pod Testing
+- `Ping <pod IP>`
+- `Kubectl exec -it <pod-name> – bash`
+# Health Check
+
+- Liveness Probe
+  - we add a liveness probe to our k8s container, which runs an HTTP request against the healthy path on our container
+  ```yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+  name: bookserver
+  spec:
+  containers:
+  - image: anisurrahman75/book-server-api:v1.4
+    name: bookserver
+    livenessProbe:
+    httpGet:
+    path: /api/books
+    port: 3030
+    initialDelaySeconds: 5
+    timeoutSeconds: 1
+    periodSeconds: 10
+    failureThreshold: 3
+    ports:
+    - containerPort: 3030
+      name: http
+      protocol: TCP
+  ```
+
+- `kubectl port-forward bookserver 3030:3030`
+- `Kubectl logs -f bookserver`
+# Persist Volume
+- Used when applications need to access to underlying host file system
+- LocalHost Mount:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bookservervolume
+spec:
+  volumes: 
+    - name: "bookservervolume"
+      hostPath: 
+        path: "/var/log"
+  containers:
+    - image: anisurrahman75/book-server-api:v1.4
+      name: bookservervolume
+      volumeMounts:
+        - mountPath: "/var/log"
+          name: "bookservervolume"
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "128Mi"
+        limits:
+          cpu: "1000m"
+          memory: "256Mi"
+      ports:
+        - containerPort: 3030
+          name: http
+          protocol: TCP
+
 ```
-- $ Kubectl create -f `<pod path>`
-- $ Kubectl  get pods
-- $ Kubectl get pod -o wide
-- $ Kubectl get pod `<pod-name>` -o yaml
-- $ Kubectl describe pod nginx
-- $ Kubectl delete pod `<pod-name>`
-- $ kubectl logs `<pod-name>` -f
-```
 
-* ## Pod Testing
-* Ping `<pod IP>`
-* Kubectl exec -it `<pod-name>` – bash
-* ## Health Check
-
-**	**     -   Liveness Probe
-
-**	**	- we add a liveness probe to our k8s container, which runs an HTTP request
-
-against the /healthy path on our container
-
-| apiVersion: v1kind: Podmetadata:name: bookserverspec:containers:- image: anisurrahman75/book-server-api:v1.4name: bookserverlivenessProbe:httpGet:path: /api/booksport: 3030initialDelaySeconds: 5timeoutSeconds: 1periodSeconds: 10failureThreshold: 3ports:- containerPort: 3030name: httpprotocol: TCP`` |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-
-* kubectl port-forward bookserver 3030:3030
-* Kubectl logs -f bookserver
-* ## Persist Volume
-* Used when applications need to access to underlying host file system
-* LocalHost:
-
-| apiVersion: v1kind: Podmetadata:name: bookservervolumespec:volumes:- name: "bookservervolume"hostPath:path: "/var/log"containers:- image: anisurrahman75/book-server-api:v1.4name: bookservervolumevolumeMounts:- mountPath: "/var/log"name: "bookservervolume"resources:requests:cpu: "500m"memory: "128Mi"limits:cpu: "1000m"memory: "256Mi"ports:- containerPort: 3030name: httpprotocol: TCP`` |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-
-**

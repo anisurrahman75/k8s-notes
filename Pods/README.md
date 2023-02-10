@@ -2,12 +2,9 @@
 
 * pods is the smallest unit of k8s
 * Pod is rapper around one or more containers
-
 * Pod is an abstraction layer over container
 * Each worker nodes have multiple pods, then each pods contains multiple docker containers most cases single container
-
 * Each pod has its own server and own ip addresses
-
 * Pod can communicate with each other using ip addresses
 * When a pods die, another pods create and communicate to another pod using services
 
@@ -55,20 +52,20 @@ Each manifest file has 4 common fields.
 
 - spec : define specification of this objects
 
-```yaml
-apiVersion: v1
-kind: pod
-metadata:
- name: nginx-pod
- labells:
-  app: nginx
-  tier: test
-spec:
- containers:
-  -name: nginx-container
-  image: nginx
-  
-```
+  ```yaml
+  apiVersion: v1
+  kind: pod
+  metadata:
+   name: nginx-pod
+   labells:
+    app: nginx
+    tier: test
+  spec:
+   containers:
+    -name: nginx-container
+    image: nginx
+    
+  ```
 
 
 # Create,display,delete & describe pod
@@ -88,61 +85,61 @@ spec:
 
 - Liveness Probe
   - we add a liveness probe to our k8s container, which runs an HTTP request against the healthy path on our container
-  ```yaml
-  apiVersion: v1
-  kind: Pod
-  metadata:
-  name: bookserver
-  spec:
-  containers:
-  - image: anisurrahman75/book-server-api:v1.4
+    ```yaml
+    apiVersion: v1
+    kind: Pod
+    metadata:
     name: bookserver
-    livenessProbe:
-    httpGet:
-    path: /api/books
-    port: 3030
-    initialDelaySeconds: 5
-    timeoutSeconds: 1
-    periodSeconds: 10
-    failureThreshold: 3
-    ports:
-    - containerPort: 3030
-      name: http
-      protocol: TCP
-  ```
+    spec:
+    containers:
+    - image: anisurrahman75/book-server-api:v1.4
+      name: bookserver
+      livenessProbe:
+      httpGet:
+      path: /api/books
+      port: 3030
+      initialDelaySeconds: 5
+      timeoutSeconds: 1
+      periodSeconds: 10
+      failureThreshold: 3
+      ports:
+      - containerPort: 3030
+        name: http
+        protocol: TCP
+    ```
 
 - `kubectl port-forward bookserver 3030:3030`
 - `Kubectl logs -f bookserver`
 # Persist Volume
 - Used when applications need to access to underlying host file system
-- LocalHost Mount:
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: bookservervolume
-spec:
-  volumes: 
-    - name: "bookservervolume"
-      hostPath: 
-        path: "/var/log"
-  containers:
-    - image: anisurrahman75/book-server-api:v1.4
-      name: bookservervolume
-      volumeMounts:
-        - mountPath: "/var/log"
-          name: "bookservervolume"
-      resources:
-        requests:
-          cpu: "500m"
-          memory: "128Mi"
-        limits:
-          cpu: "1000m"
-          memory: "256Mi"
-      ports:
-        - containerPort: 3030
-          name: http
-          protocol: TCP
-
-```
+  - LocalHost Mount:
+      ```yaml
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: bookservervolume
+      spec:
+        volumes: 
+          - name: "bookservervolume"
+            hostPath: 
+              path: "/var/log"
+        containers:
+          - image: anisurrahman75/book-server-api:v1.4
+            name: bookservervolume
+            volumeMounts:
+              - mountPath: "/var/log"
+                name: "bookservervolume"
+            resources:
+              requests:
+                cpu: "500m"
+                memory: "128Mi"
+              limits:
+                cpu: "1000m"
+                memory: "256Mi"
+            ports:
+              - containerPort: 3030
+                name: http
+                protocol: TCP
+    
+      ```
 

@@ -1,7 +1,6 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  annotations:
   labels:
     app: nginx
   name: nginx-fast-storage
@@ -19,14 +18,13 @@ spec:
         app: nginx
     spec:
       containers:
-      - image: nginx:1.10.0
-        imagePullPolicy: IfNotPresent
-        name: nginx
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
+        - image: nginx:1.10.0
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
-      nodeSelector:
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}

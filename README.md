@@ -42,7 +42,7 @@
 - Each workers node have multiple docker containers
 - On worker node  main application are run
 - On master node most important process are run
-  ![Screenshot from 2023-01-31 11-32-26.png](..%2F..%2F..%2F..%2F..%2FPictures%2FScreenshots%2FScreenshot%20from%202023-01-31%2011-32-26.png)
+- ## ![](https://lh5.googleusercontent.com/esi-Mg6mYmGxVx9hpQ9U7QTMlXINR6KQ7JQX6bnGu5csvEakG-U-lYH1lH53GA-geTm5CElRRdKJ6AulEY33EygDm1LnKyMXp18qQL8_K8xa4M4jvYP7IQPm54pl3gI31GWpvRiNZ5e8mFEeXA0HF1M)
 
 ## Control Panel / Master node Component
 
@@ -75,10 +75,10 @@
 
 - responsible for overall health of the cluster
 - Some types of these controllers are:
-    - Node controller: Responsible for noticing and responding when nodes go down
-    - Job controller: Watches for Job objects that represent one-off tasks, then creates Pods to run those tasks to completion
-    - EndpointSlice controller: Populates EndpointSlice objects (to provide a link between Services and Pods)
-    - ServiceAccount controller: Create default ServiceAccounts for new namespaces
+  - Node controller: Responsible for noticing and responding when nodes go down
+  - Job controller: Watches for Job objects that represent one-off tasks, then creates Pods to run those tasks to completion
+  - EndpointSlice controller: Populates EndpointSlice objects (to provide a link between Services and Pods)
+  - ServiceAccount controller: Create default ServiceAccounts for new namespaces
 
 #### Cloud control-manager:
 

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+spec:
+  selector:
+    matchLabels:
+      app: app
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+      - name: go-web
+        image: anisurrahman75/book-server-api:v1.4
+        ports:
+          - containerPort: 3030

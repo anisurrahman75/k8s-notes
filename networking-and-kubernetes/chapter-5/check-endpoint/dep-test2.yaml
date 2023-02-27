@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-backend-api2
+  labels:
+    app: my-backend-api2
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: my-backend-api2
+  template:
+    metadata:
+      labels:
+        app: my-backend-api2
+    spec:
+      containers:
+        - name: my-backend-api2
+          image: anisurrahman75/book-server-api:v1.4
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name:  my-svc
+spec:
+  selector:
+    app:  my-backend-api1
+  type:  ClusterIP
+  ports:
+  - protocol:  TCP
+    port:  80
+    targetPort:  8080

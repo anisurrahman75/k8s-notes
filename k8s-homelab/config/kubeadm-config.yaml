@@ -1,0 +1,9 @@
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: InitConfiguration
+nodeRegistration:
+  name: "master"
+---
+apiVersion: kubeadm.k8s.io/v1beta4
+kind: ClusterConfiguration
+# No networking or podSubnet defined here; you'll configure this with your chosen CNI
+# No controlPlaneEndpoint specified; kubeadm will use the node's primary IP

@@ -1,0 +1,3 @@
+- kubectl drain anisur-1 --ignore-daemonsets
+- kubectl delete node anisur-1
+- kubeadm token create --print-join-command

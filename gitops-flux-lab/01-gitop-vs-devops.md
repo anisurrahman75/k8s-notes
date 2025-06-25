@@ -1,0 +1,1 @@
+![gitops-vs-devops.png](./photos/gitops-vs-devops.png)

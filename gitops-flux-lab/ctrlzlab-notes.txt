@@ -1,0 +1,35 @@
+gitops-infra/                # Infrastructure setup (CNPG, Redis, CertManager, Flux)
+├── charts/                  # Helm charts for infrastructure services
+│   ├── cnpg/                # CNPG Helm chart
+│   ├── redis/               # Redis Helm chart
+│   └── certmanager/         # CertManager Helm chart
+├── flux/                    # FluxCD configuration
+│   ├── flux-system/         # Flux system setup
+│   └── gitrepository.yaml   # GitRepository resource
+├── namespaces/              # Namespace configurations
+└── README.md                # Infrastructure documentation
+
+gitops-apps/                 # App Deployment configurations (HelmRelease)
+├── apps/                    # App deployment configurations
+│   ├── golang-backend/      # Backend deployment
+│   └── js-frontend/         # Frontend deployment
+├── flux/                    # FluxCD configs for app deployment
+│   └── kustomization.yaml   # Flux Kustomization
+└── README.md                # App deployment documentation
+
+golang-app/                  # Golang Backend app source code + CI/CD
+├── src/                     # Source code for Golang app
+│   ├── main.go              # Main entry point
+│   ├── handlers/            # API handlers
+│   └── services/            # Business logic
+├── Dockerfile               # Dockerfile for the app
+└── .github/                 # CI/CD workflows
+    └── workflows/           # GitHub Actions for CI
+        └── ci.yaml          # CI pipeline
+
+frontend-app/                # Frontend app source code + CI/CD
+├── src/                     # Source code for the frontend
+├── Dockerfile               # Dockerfile for frontend
+└── .github/                 # CI/CD workflows
+    └── workflows/           # GitHub Actions for CI
+        └── ci.yaml          # CI pipeline

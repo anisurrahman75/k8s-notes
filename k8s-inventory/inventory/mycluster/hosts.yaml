@@ -1,0 +1,29 @@
+all:
+  hosts:
+    noobaa1:
+      ansible_host: 10.2.0.218
+      ansible_user: ubuntu
+    noobaa2:
+      ansible_host: 10.2.0.219
+      ansible_user: ubuntu
+    noobaa3:
+      ansible_host: 10.2.0.182
+      ansible_user: ubuntu
+  children:
+    kube_control_plane:
+      hosts:
+        noobaa1:
+    kube_node:
+      hosts:
+        noobaa1:
+        noobaa2:
+        noobaa3:
+    etcd:
+      hosts:
+        noobaa1:
+    k8s_cluster:
+      children:
+        kube_control_plane:
+        kube_node:
+    calico_rr:
+      hosts: {}

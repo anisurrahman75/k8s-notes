@@ -11,3 +11,12 @@ vagrant ssh
 ```
 
 
+### Delete Vagratfile if faced error while vagrant up
+```bash
+VBoxManage list vms
+VBoxManage unregistervm <vm-name> --delete
+
+
+vagrant box list
+vagrant box remove <box-name>
+```

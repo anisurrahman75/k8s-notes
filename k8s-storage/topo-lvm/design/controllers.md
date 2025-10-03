@@ -53,10 +53,8 @@ func (r gRPCServerRunner) Start(ctx context.Context) error {
 ```
 
 **csi-provisioner** Sidecar
-```bash
-external-provisioner: $(OUTPUT_DIR)/.csi-provisioner-$(EXTERNAL_PROVISIONER_VERSION)
-	cp -f $< $(OUTPUT_DIR)/csi-provisioner
-```
+https://github.com/kubernetes-csi/external-snapshotter?tab=readme-ov-file#design
+
 
 **Sidecar List**
 ```bash

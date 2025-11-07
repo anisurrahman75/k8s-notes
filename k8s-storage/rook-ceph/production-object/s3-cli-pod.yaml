@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: s3-cli-tester
+spec:
+  containers:
+    - name: aws-cli
+      image: amazon/aws-cli:latest
+      envFrom:
+        - secretRef:
+            name: ceph-delete-bucket    # Secret created by the OBC
+        - configMapRef:
+            name: ceph-delete-bucket    # ConfigMap created by the OBC
+      command: ["/bin/sh", "-c", "sleep infinity"]
+  #        - |
+#          echo "Creating a test file..."
+#          echo "Hello from NooBaa!" > /tmp/hello.txt
+#          echo "Hello from KubeStash!" > /tmp/kubestash.txt
+#
+#          echo "Uploading file to bucket: $BUCKET_NAME"
+#          aws --endpoint-url http://$BUCKET_HOST s3 cp /tmp/hello.txt s3://$BUCKET_NAME/
+#          aws --endpoint-url http://$BUCKET_HOST s3 cp /tmp/kubestash.txt s3://$BUCKET_NAME/
+#
+#          echo "Listing objects in bucket: $BUCKET_NAME"
+#          aws --endpoint-url http://$BUCKET_HOST s3 ls s3://$BUCKET_NAME/
+  restartPolicy: Never

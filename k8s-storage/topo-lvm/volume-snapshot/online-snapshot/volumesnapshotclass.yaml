@@ -1,0 +1,55 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: topolvm-online
+driver: topolvm.io
+deletionPolicy: Delete
+parameters:
+  topolvm.io/snapshotMode: "online"
+  topolvm.io/snapshotStorageNamespace: "topolvm-system"
+  topolvm.io/snapshotStorageName: "s3-storage"
+
+---
+
+#VolumeSnapshotBackup
+
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aws-backup-config
+  namespace: topolvm-system
+data:
+  repositoryURL: "s3:s3.amazonaws.com/topolvm-snapshots/online-snapshots/"
+  backupFlags: |
+    --exclude /tmp
+    --cleanup-cache
+  restoreFlags: |
+    --cleanup-cache
+  globalFlags: |
+    --limit-upload=4
+    --verbose
+    --options s3.region=us-east-1, s3.bucket-lookup=auto, s3.storage-class=STANDARD_IA, s3.enable-restore=true, s3.retries=5
+#  retentionPolicy: |
+#    keep-last=5
+  storageSecretRef: "aws-credentials" ## Encryption secret, access keys, etc. also stored CA Cert if needed.
+
+---
+
+
+
+
+
+
+
+
+
+#  restic backup /data \
+#  --repo s3:s3.amazonaws.com/mybucket \
+#  --option s3.region=us-east-1,s3.storage-class=STANDARD_IA \
+#  --verbose
+
+
+#Tentative design for the topolvm restic snapshots feature:
+#  I'm thinking about keeping VolumeSnapshotClass as simple as possible. And get all the restic configuration from the configmap.
+

@@ -1,0 +1,1 @@
+Restic Progress Streaming Support: https://github.com/restic/restic/pull/1944

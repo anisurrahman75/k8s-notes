@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpath-pod
+  namespace: topolvm-system
+spec:
+#  nodeName: <node-where-snapshot-is-mounted>  # Important!
+  containers:
+    - name: pause
+      image: ubuntu:22.04
+      command:
+        - bash
+        - -c
+        - |
+          sleep infinity
+      volumeMounts:
+        - mountPath: /data
+          name: snapshot
+  volumes:
+    - name: snapshot
+      hostPath:
+        path: /mnt/online-snapshots/138f4fe0-54c7-4ca6-ae04-a75e750c7127
+        type: Directory

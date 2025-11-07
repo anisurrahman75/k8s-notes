@@ -1,0 +1,31 @@
+
+
+
+
+StorageClass VolumeBindingMode
+
+1. WaitForFirstConsumer
+  - When waitForFirstConsumer, For a PVC the PV will create only when a POD is using the PVC.
+  - Alright, we can USE the POD hostpath to restore the snapshot.
+    - But the issue is, data inconsistency.
+    - What If pod write data in the middle of restore?
+  - SO, Solution is, inject init container to the POD, to restore the snapshot before the main container start.
+  - But Question is For tht deployment, there is many pods.
+    - Do we inject init container to all pods?
+    - Think that we inject, but only one pod should restore the snapshot.
+    - How can we do that?
+
+
+
+ 2. Immediate
+    - When Immediate, PV will create immediately when PVC created.
+        - AS no one bind the LV to Pod, that means the Logical Volume is free.
+        - So we can restore the snapshot to the LV directly.
+        - No data inconsistency issue.
+    - But One Issue?
+        - IF another POd try to bind the LV to Pod, that will fail.
+        - This pod should wait until restore complete.
+    - So, how can we make the Pod wait until restore complete?
+      - We can use init container to check the restore status.
+        - IF restore complete, then main container start.
+        - ELSE, sleep and check again.

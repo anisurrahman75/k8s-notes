@@ -1,0 +1,126 @@
+# Mirror Traffic for Testing
+# Send copies of requests to another service for testing/debugging
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: mirror-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "mirror.example.com"
+
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+
+    # Primary backend (handles the actual request)
+    backendRefs:
+    - name: app-v1
+      port: 80
+
+    # Mirror traffic to v2 for testing
+    filters:
+    - type: RequestMirror
+      requestMirror:
+        backendRef:
+          name: app-v2
+          port: 80
+
+---
+# Use Cases:
+
+# 1. Testing New Versions:
+# - Production traffic goes to v1
+# - Copy goes to v2 for testing
+# - v2 responses are discarded
+# - No impact on users
+
+# 2. Debugging:
+# - Mirror problematic requests to debug environment
+# - Analyze without affecting production
+
+# 3. Monitoring/Analytics:
+# - Send copies to analytics service
+# - Process data without blocking main request
+
+# 4. Shadow Deployments:
+# - Test new version with real traffic
+# - Compare responses between old and new
+
+---
+# Example: Mirror specific requests only
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: selective-mirror-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "selective-mirror.example.com"
+
+  rules:
+  # Mirror only POST requests to /api
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api
+      method: POST
+
+    backendRefs:
+    - name: app-v1
+      port: 80
+
+    filters:
+    - type: RequestMirror
+      requestMirror:
+        backendRef:
+          name: app-v2
+          port: 80
+
+  # Other requests - no mirroring
+  - backendRefs:
+    - name: app-v1
+      port: 80
+
+---
+# Important Notes:
+
+# 1. Mirrored requests are "fire and forget"
+#    - Responses from mirror backend are ignored
+#    - Client only sees response from primary backend
+
+# 2. Performance Impact:
+#    - Doubles the load on your cluster
+#    - Use selectively for high-traffic applications
+
+# 3. Privacy/Security:
+#    - Mirrored traffic includes all data (headers, body)
+#    - Be careful with sensitive data
+#    - Ensure mirror backend has same security controls
+
+# 4. Monitoring:
+#    - Monitor mirror backend for errors
+#    - Compare behavior between primary and mirror
+#    - Look for discrepancies in responses
+
+---
+# Test:
+# export GATEWAY_HOST=$(kubectl get gateway my-gateway -n demo -o jsonpath='{.status.addresses[0].value}')
+# curl -H "Host: mirror.example.com" http://$GATEWAY_HOST/
+#
+# Check logs of both app-v1 and app-v2:
+# kubectl logs -n demo -l app=myapp,version=v1
+# kubectl logs -n demo -l app=myapp,version=v2
+#
+# Both should show the request, but only v1 response is sent to client
+

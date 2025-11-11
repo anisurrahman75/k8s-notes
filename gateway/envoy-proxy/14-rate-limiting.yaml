@@ -1,0 +1,206 @@
+  - name: my-gateway
+
+  hostnames:
+  - "ratelimit.example.com"
+
+  rules:
+  - backendRefs:
+    - name: app-v1
+      port: 80
+
+---
+# Alternative: Simple local rate limiting (per Gateway instance)
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: local-rate-limit
+  namespace: demo
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: my-gateway
+
+  # Local rate limiting (not shared across instances)
+  rateLimit:
+    type: Local
+    local:
+      rules:
+      - limit:
+          requests: 10
+          unit: Second
+
+---
+# Testing rate limits:
+# Run this to exceed the rate limit:
+# for i in {1..20}; do curl -H "Host: ratelimit.example.com" http://$GATEWAY_HOST/; done
+#
+# After hitting the limit, you should see:
+# HTTP 429 Too Many Requests
+
+---
+# Use Cases:
+
+# 1. API Protection:
+# - Prevent API abuse
+# - Different limits for different API tiers (free vs paid)
+
+# 2. DDoS Mitigation:
+# - Protect against traffic spikes
+# - Limit requests per IP address
+
+# 3. Fair Usage:
+# - Ensure all users get fair access
+# - Prevent single user from monopolizing resources
+
+# 4. Cost Control:
+# - Limit backend load
+# - Prevent runaway costs from excessive requests
+
+# 5. SLA Enforcement:
+# - Enforce rate limits per customer tier
+# - Premium customers get higher limits
+
+---
+# Example: Multi-tier rate limiting
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: tiered-rate-limit
+  namespace: demo
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: my-gateway
+
+  rateLimit:
+    type: Global
+    global:
+      rules:
+      # Free tier: 100 requests/hour
+      - clientSelectors:
+        - headers:
+          - name: x-api-tier
+            value: free
+        limit:
+          requests: 100
+          unit: Hour
+
+      # Premium tier: 10,000 requests/hour
+      - clientSelectors:
+        - headers:
+          - name: x-api-tier
+            value: premium
+        limit:
+          requests: 10000
+          unit: Hour
+
+      # Enterprise tier: unlimited (or very high limit)
+      - clientSelectors:
+        - headers:
+          - name: x-api-tier
+            value: enterprise
+        limit:
+          requests: 1000000
+          unit: Hour
+
+---
+# Response Headers:
+# When rate limited, the response includes:
+# X-RateLimit-Limit: 100
+# X-RateLimit-Remaining: 0
+# X-RateLimit-Reset: 1638360000
+# Retry-After: 3600
+# Rate Limiting
+# Protect your services from excessive traffic
+
+---
+# Rate limiting in Envoy Gateway requires additional setup
+# You need to deploy a rate limit service (Redis-based)
+
+---
+# Step 1: Deploy Redis for rate limiting
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: demo
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+
+---
+# Step 2: Configure Rate Limit using BackendTrafficPolicy
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: rate-limit-policy
+  namespace: demo
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: my-gateway
+
+  rateLimit:
+    type: Global
+    global:
+      rules:
+      # Rule 1: Limit by client IP
+      - clientSelectors:
+        - headers:
+          - name: x-forwarded-for
+            type: Distinct
+        limit:
+          requests: 100
+          unit: Minute
+
+      # Rule 2: Limit by API key
+      - clientSelectors:
+        - headers:
+          - name: x-api-key
+            type: Distinct
+        limit:
+          requests: 1000
+          unit: Hour
+
+      # Rule 3: Global limit
+      - limit:
+          requests: 10000
+          unit: Hour
+
+---
+# Step 3: HTTPRoute with rate limiting
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: rate-limited-route
+  namespace: demo
+spec:
+  parentRefs:
+

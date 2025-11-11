@@ -1,0 +1,62 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: header-based-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "app.example.com"
+
+  rules:
+  # Route to app-v2 if header "version: v2" is present
+  - matches:
+    - headers:
+      - name: version
+        value: v2
+        type: Exact
+    backendRefs:
+    - name: app-v2
+      port: 80
+
+  # Route to app-v2 if header "env: canary" is present
+  - matches:
+    - headers:
+      - name: env
+        value: canary
+        type: Exact
+    backendRefs:
+    - name: app-v2
+      port: 80
+
+  # Default route (no specific headers) goes to app-v1
+  - backendRefs:
+    - name: app-v1
+      port: 80
+
+---
+# Test:
+# Default route (app-v1):
+# curl -H "Host: app.example.com" http://$GATEWAY_HOST/
+# Response: "Hello from App v1"
+#
+# With version header (app-v2):
+# curl -H "Host: app.example.com" -H "version: v2" http://$GATEWAY_HOST/
+# Response: "Hello from App v2"
+#
+# With env header (app-v2):
+# curl -H "Host: app.example.com" -H "env: canary" http://$GATEWAY_HOST/
+# Response: "Hello from App v2"
+
+# Use Cases:
+# - Canary deployments: Test new version with specific users
+# - A/B testing: Route based on experiment group
+# - Mobile vs Web: Different backends based on User-Agent
+# - API versioning: Route based on API-Version header
+# Header-Based Routing
+# Route traffic to different services based on HTTP headers
+
+---
+

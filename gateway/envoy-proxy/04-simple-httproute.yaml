@@ -1,0 +1,40 @@
+# Simple HTTPRoute
+# Routes traffic from the Gateway to a backend service
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: simple-route
+  namespace: demo
+spec:
+  # Attach this route to the Gateway
+  parentRefs:
+  - name: my-gateway
+
+  # Hostname-based routing
+  # Traffic with Host header "app.example.com" will match this route
+  hostnames:
+  - "app.example.com"
+
+  # Rules define how to route the traffic
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    # Backend services to send traffic to
+    backendRefs:
+    - name: app-v1
+      port: 80
+
+---
+# Test this route:
+# 1. Get Gateway address:
+#    export GATEWAY_HOST=$(kubectl get gateway my-gateway -n demo -o jsonpath='{.status.addresses[0].value}')
+#
+# 2. Send request:
+#    curl -H "Host: app.example.com" http://$GATEWAY_HOST/
+#
+# Expected response: "Hello from App v1"
+

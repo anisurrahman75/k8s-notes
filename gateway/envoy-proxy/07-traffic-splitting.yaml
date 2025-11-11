@@ -1,0 +1,112 @@
+# Traffic Splitting (Weighted Routing)
+# Distribute traffic across multiple backend services with specific weights
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: traffic-splitting-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "weighted.example.com"
+
+  rules:
+  - backendRefs:
+    # 90% of traffic to app-v1
+    - name: app-v1
+      port: 80
+      weight: 90
+
+    # 10% of traffic to app-v2
+    - name: app-v2
+      port: 80
+      weight: 10
+
+---
+# Test:
+# Run this multiple times to see traffic distribution:
+# for i in {1..20}; do curl -H "Host: weighted.example.com" http://$GATEWAY_HOST/; done
+#
+# You should see approximately:
+# - 18 responses from "Hello from App v1" (90%)
+# - 2 responses from "Hello from App v2" (10%)
+
+# Use Cases:
+# 1. Canary Releases:
+#    - Start: 95% stable, 5% canary
+#    - Progress: 90% stable, 10% canary
+#    - Eventually: 0% stable, 100% canary (full rollout)
+#
+# 2. Blue-Green Deployment:
+#    - Testing: 99% blue, 1% green
+#    - Switch: 0% blue, 100% green
+#
+# 3. A/B Testing:
+#    - 50% variant A, 50% variant B
+#
+# 4. Gradual Migration:
+#    - Slowly shift traffic from old to new version
+
+---
+# Example: Progressive Canary Deployment
+# Stage 1: 95-5 split (initial canary)
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: canary-stage1
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+  hostnames:
+  - "canary.example.com"
+  rules:
+  - backendRefs:
+    - name: app-v1
+      port: 80
+      weight: 95
+    - name: app-v2
+      port: 80
+      weight: 5
+---
+# Stage 2: 70-30 split (if canary looks good)
+# apiVersion: gateway.networking.k8s.io/v1
+# kind: HTTPRoute
+# metadata:
+#   name: canary-stage2
+#   namespace: demo
+# spec:
+#   parentRefs:
+#   - name: my-gateway
+#   hostnames:
+#   - "canary.example.com"
+#   rules:
+#   - backendRefs:
+#     - name: app-v1
+#       port: 80
+#       weight: 70
+#     - name: app-v2
+#       port: 80
+#       weight: 30
+---
+# Stage 3: 0-100 split (full rollout)
+# apiVersion: gateway.networking.k8s.io/v1
+# kind: HTTPRoute
+# metadata:
+#   name: canary-stage3
+#   namespace: demo
+# spec:
+#   parentRefs:
+#   - name: my-gateway
+#   hostnames:
+#   - "canary.example.com"
+#   rules:
+#   - backendRefs:
+#     - name: app-v2
+#       port: 80
+#       weight: 100
+

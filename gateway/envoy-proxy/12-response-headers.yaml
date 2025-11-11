@@ -1,0 +1,168 @@
+# Response Header Manipulation
+# Add, set, or remove headers from backend responses
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: response-header-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "api.example.com"
+
+  rules:
+  - filters:
+    # Modify response headers
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        # Security headers
+        - name: X-Frame-Options
+          value: "DENY"
+        - name: X-Content-Type-Options
+          value: "nosniff"
+        - name: X-XSS-Protection
+          value: "1; mode=block"
+        - name: Strict-Transport-Security
+          value: "max-age=31536000; includeSubDomains"
+
+        # Custom branding
+        - name: X-Powered-By
+          value: "My API Gateway"
+
+        # CORS headers
+        - name: Access-Control-Allow-Origin
+          value: "*"
+
+        set:
+        # Override backend's cache control
+        - name: Cache-Control
+          value: "no-cache, no-store, must-revalidate"
+
+        remove:
+        # Remove server information for security
+        - Server
+        # Remove backend-specific headers
+        - X-Backend-Version
+
+    backendRefs:
+    - name: app-v1
+      port: 80
+
+---
+# Use Cases:
+
+# 1. Security Headers:
+# - Prevent clickjacking, XSS, MIME sniffing
+# - Hide server information
+# - Enforce HTTPS with HSTS
+
+# 2. CORS Configuration:
+# - Allow cross-origin requests
+# - Set allowed origins, methods, headers
+
+# 3. Caching Strategy:
+# - Control browser/CDN caching
+# - Override backend cache headers
+
+# 4. Branding/Versioning:
+# - Add gateway version info
+# - Remove backend implementation details
+
+# 5. Compliance:
+# - Add required headers for compliance
+# - Remove sensitive information
+
+---
+# Example: Comprehensive Security Headers
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: security-response-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "secure.example.com"
+
+  rules:
+  - filters:
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        # Prevent clickjacking
+        - name: X-Frame-Options
+          value: "SAMEORIGIN"
+
+        # Prevent MIME type sniffing
+        - name: X-Content-Type-Options
+          value: "nosniff"
+
+        # Enable browser XSS protection
+        - name: X-XSS-Protection
+          value: "1; mode=block"
+
+        # Enforce HTTPS
+        - name: Strict-Transport-Security
+          value: "max-age=63072000; includeSubDomains; preload"
+
+        # Content Security Policy
+        - name: Content-Security-Policy
+          value: "default-src 'self'"
+
+        # Referrer policy
+        - name: Referrer-Policy
+          value: "strict-origin-when-cross-origin"
+
+        # Permissions policy
+        - name: Permissions-Policy
+          value: "geolocation=(), microphone=(), camera=()"
+
+        remove:
+        - Server
+        - X-Powered-By
+
+    backendRefs:
+    - name: app-v1
+      port: 80
+
+---
+# Example: CORS Configuration
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cors-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "api.example.com"
+
+  rules:
+  - filters:
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: Access-Control-Allow-Origin
+          value: "https://frontend.example.com"
+        - name: Access-Control-Allow-Methods
+          value: "GET, POST, PUT, DELETE, OPTIONS"
+        - name: Access-Control-Allow-Headers
+          value: "Content-Type, Authorization"
+        - name: Access-Control-Max-Age
+          value: "3600"
+        - name: Access-Control-Allow-Credentials
+          value: "true"
+
+    backendRefs:
+    - name: app-v1
+      port: 80
+

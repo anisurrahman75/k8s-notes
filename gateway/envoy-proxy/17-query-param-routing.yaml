@@ -1,0 +1,160 @@
+# Query Parameter Based Routing
+# Route traffic based on URL query parameters
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: query-param-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "query.example.com"
+
+  rules:
+  # Route requests with ?version=v2 to app-v2
+  - matches:
+    - queryParams:
+      - name: version
+        value: v2
+        type: Exact
+    backendRefs:
+    - name: app-v2
+      port: 80
+
+  # Route requests with ?version=beta to app-v2
+  - matches:
+    - queryParams:
+      - name: version
+        value: beta
+        type: Exact
+    backendRefs:
+    - name: app-v2
+      port: 80
+
+  # Default: route to app-v1
+  - backendRefs:
+    - name: app-v1
+      port: 80
+
+---
+# Test:
+# Default version (v1):
+# curl -H "Host: query.example.com" "http://$GATEWAY_HOST/"
+# Response: "Hello from App v1"
+#
+# Beta version (v2):
+# curl -H "Host: query.example.com" "http://$GATEWAY_HOST/?version=beta"
+# Response: "Hello from App v2"
+#
+# Explicit v2:
+# curl -H "Host: query.example.com" "http://$GATEWAY_HOST/?version=v2"
+# Response: "Hello from App v2"
+
+---
+# Use Cases:
+
+# 1. Feature Flags:
+# - Enable features with ?feature=new
+# - Easy A/B testing without code changes
+
+# 2. API Versioning:
+# - ?api_version=v2 routes to new API
+# - Gradual migration from old to new
+
+# 3. Debug Mode:
+# - ?debug=true routes to debug backend
+# - Developers can test with verbose logging
+
+# 4. Regional Routing:
+# - ?region=eu routes to EU backend
+# - ?region=us routes to US backend
+
+# 5. Format Selection:
+# - ?format=json routes to JSON API
+# - ?format=xml routes to XML API
+
+---
+# Example: Combine query params with other matchers
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: combined-query-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "api.example.com"
+
+  rules:
+  # API v2 + debug mode
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api
+      queryParams:
+      - name: version
+        value: "2"
+      - name: debug
+        value: "true"
+    backendRefs:
+    - name: app-v2
+      port: 80
+
+  # Just API v2
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api
+      queryParams:
+      - name: version
+        value: "2"
+    backendRefs:
+    - name: app-v2
+      port: 80
+
+  # Default API v1
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api
+    backendRefs:
+    - name: app-v1
+      port: 80
+
+---
+# Example: Multiple query parameter matching
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: multi-query-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "search.example.com"
+
+  rules:
+  # Premium users with specific features
+  - matches:
+    - queryParams:
+      - name: tier
+        value: premium
+      - name: feature
+        value: advanced
+    backendRefs:
+    - name: app-v2
+      port: 80
+
+  # All other requests
+  - backendRefs:
+    - name: app-v1
+      port: 80
+

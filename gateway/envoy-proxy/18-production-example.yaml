@@ -1,0 +1,399 @@
+# Complete Example: Production-Ready Gateway Setup
+# This combines multiple features into a realistic production scenario
+
+---
+# Namespace for production application
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+---
+# Frontend application (v1 - stable)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-v1
+  namespace: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: frontend
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: v1
+    spec:
+      containers:
+      - name: app
+        image: hashicorp/http-echo
+        args:
+        - "-text=Frontend v1.0 - Stable"
+        - "-listen=:8080"
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-v1
+  namespace: production
+spec:
+  selector:
+    app: frontend
+    version: v1
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+# Frontend application (v2 - canary)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-v2
+  namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: frontend
+        version: v2
+    spec:
+      containers:
+      - name: app
+        image: hashicorp/http-echo
+        args:
+        - "-text=Frontend v2.0 - Canary"
+        - "-listen=:8080"
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-v2
+  namespace: production
+spec:
+  selector:
+    app: frontend
+    version: v2
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+# API backend service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-backend
+  namespace: production
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: app
+        image: hashicorp/http-echo
+        args:
+        - "-text=API Backend"
+        - "-listen=:8080"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-backend
+  namespace: production
+spec:
+  selector:
+    app: api
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+# Production Gateway with HTTPS
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: production-gateway
+  namespace: production
+spec:
+  gatewayClassName: eg
+  listeners:
+  # HTTP listener (will redirect to HTTPS)
+  - name: http
+    protocol: HTTP
+    port: 80
+    allowedRoutes:
+      namespaces:
+        from: Same
+
+  # HTTPS listener
+  - name: https
+    protocol: HTTPS
+    port: 443
+    hostname: "*.mycompany.com"
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - name: production-tls
+    allowedRoutes:
+      namespaces:
+        from: Same
+---
+# HTTPRoute: Redirect HTTP to HTTPS
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: http-redirect
+  namespace: production
+spec:
+  parentRefs:
+  - name: production-gateway
+    sectionName: http
+
+  hostnames:
+  - "*.mycompany.com"
+
+  rules:
+  - filters:
+    - type: RequestRedirect
+      requestRedirect:
+        scheme: https
+        statusCode: 301
+---
+# HTTPRoute: Frontend with canary deployment
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: frontend-route
+  namespace: production
+spec:
+  parentRefs:
+  - name: production-gateway
+    sectionName: https
+
+  hostnames:
+  - "www.mycompany.com"
+
+  rules:
+  # Canary users (via header)
+  - matches:
+    - headers:
+      - name: x-canary-user
+        value: "true"
+    backendRefs:
+    - name: frontend-v2
+      port: 80
+
+  # Beta testers (via query param)
+  - matches:
+    - queryParams:
+      - name: beta
+        value: "true"
+    backendRefs:
+    - name: frontend-v2
+      port: 80
+
+  # Default: 95% stable, 5% canary
+  - backendRefs:
+    - name: frontend-v1
+      port: 80
+      weight: 95
+    - name: frontend-v2
+      port: 80
+      weight: 5
+
+    # Add security headers to all responses
+    filters:
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: X-Frame-Options
+          value: "DENY"
+        - name: X-Content-Type-Options
+          value: "nosniff"
+        - name: Strict-Transport-Security
+          value: "max-age=31536000; includeSubDomains"
+        - name: Content-Security-Policy
+          value: "default-src 'self'"
+        remove:
+        - Server
+
+  timeouts:
+    request: 30s
+---
+# HTTPRoute: API with path-based routing
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: api-route
+  namespace: production
+spec:
+  parentRefs:
+  - name: production-gateway
+    sectionName: https
+
+  hostnames:
+  - "api.mycompany.com"
+
+  rules:
+  # Health check endpoint (fast timeout)
+  - matches:
+    - path:
+        type: Exact
+        value: /health
+    backendRefs:
+    - name: api-backend
+      port: 80
+    timeouts:
+      request: 5s
+
+  # API v2 endpoints
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /v2
+    backendRefs:
+    - name: api-backend
+      port: 80
+    filters:
+    # Add API version header
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-API-Version
+          value: "2.0"
+    # Add CORS headers
+    - type: ResponseHeaderModifier
+      responseHeaderModifier:
+        add:
+        - name: Access-Control-Allow-Origin
+          value: "https://www.mycompany.com"
+        - name: Access-Control-Allow-Methods
+          value: "GET, POST, PUT, DELETE, OPTIONS"
+        - name: Access-Control-Allow-Headers
+          value: "Content-Type, Authorization"
+    timeouts:
+      request: 60s
+
+  # Legacy API (v1) - rewrite to /v2
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /v1
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /v2
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        add:
+        - name: X-Legacy-Request
+          value: "true"
+    backendRefs:
+    - name: api-backend
+      port: 80
+    timeouts:
+      request: 60s
+---
+# Rate limiting policy for production
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: production-policy
+  namespace: production
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: production-gateway
+
+  rateLimit:
+    type: Local
+    local:
+      rules:
+      # General rate limit
+      - limit:
+          requests: 100
+          unit: Minute
+---
+# Notes for creating TLS certificate:
+#
+# For testing (self-signed):
+# openssl req -x509 -newkey rsa:4096 -keyout tls.key -out tls.crt \
+#   -days 365 -nodes -subj '/CN=*.mycompany.com'
+# kubectl create secret tls production-tls --cert=tls.crt --key=tls.key -n production
+#
+# For production (Let's Encrypt with cert-manager):
+# 1. Install cert-manager
+# 2. Create ClusterIssuer for Let's Encrypt
+# 3. Create Certificate resource
+# ---
+# apiVersion: cert-manager.io/v1
+# kind: Certificate
+# metadata:
+#   name: production-tls
+#   namespace: production
+# spec:
+#   secretName: production-tls
+#   issuerRef:
+#     name: letsencrypt-prod
+#     kind: ClusterIssuer
+#   dnsNames:
+#   - "*.mycompany.com"
+---
+# Testing:
+#
+# 1. Get Gateway address:
+# export GATEWAY_IP=$(kubectl get gateway production-gateway -n production -o jsonpath='{.status.addresses[0].value}')
+#
+# 2. Test HTTP redirect:
+# curl -v -H "Host: www.mycompany.com" http://$GATEWAY_IP/
+# Should see 301 redirect to https://
+#
+# 3. Test frontend (stable):
+# curl -k -H "Host: www.mycompany.com" https://$GATEWAY_IP/
+# Mostly returns "Frontend v1.0 - Stable"
+#
+# 4. Test canary:
+# curl -k -H "Host: www.mycompany.com" -H "x-canary-user: true" https://$GATEWAY_IP/
+# Returns "Frontend v2.0 - Canary"
+#
+# 5. Test API:
+# curl -k -H "Host: api.mycompany.com" https://$GATEWAY_IP/v2/users
+#
+# 6. Test legacy API:
+# curl -k -H "Host: api.mycompany.com" https://$GATEWAY_IP/v1/users
+# Gets rewritten to /v2/users
+

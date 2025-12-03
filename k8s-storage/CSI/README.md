@@ -11,8 +11,8 @@ The specification defines the boundary between the CO and the CSI plugin. Before
 
 
 These two entities can live in a single binary or you can separate them. That's up to you. But more on this later.
-![Single Service](./images/single-service.png)
-![Separate Service](./images/separate-service.png)
+![Single Service](../images/single-service.png)
+![Separate Service](../images/separate-service.png)
 
 Identity Service: Finally, there is also the `Identity gRPC server`, which we’ll see in a bit. This service needs to be implemented for each individual plugin. For example, if you have two separate plugins running, `Node` and `Controller`, both binaries  need to implement the Identity gRPC interface individually.
 

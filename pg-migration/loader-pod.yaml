@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pg-loader-script
+  namespace: demo
+data:
+  load.sh: |
+    #!/bin/bash
+    set -e
+
+    echo "🚀 Starting insert until DB reaches ~30GB..."
+
+    TARGET_BYTES=$((30 * 1024 * 1024 * 1024))
+
+    while true; do
+
+      SIZE_BYTES=$(psql "host=pg-publisher.demo.svc.cluster.local port=5432 user=postgres dbname=testdb" \
+        -t -c "SELECT pg_database_size('testdb');" \
+        | tr -d '[:space:]')
+
+      SIZE_PRETTY=$(psql "host=pg-publisher.demo.svc.cluster.local port=5432 user=postgres dbname=testdb" \
+        -t -c "SELECT pg_size_pretty(pg_database_size('testdb'));" \
+        | tr -d '[:space:]')
+
+      echo "📦 Current DB size: $SIZE_PRETTY"
+
+      if [ "$SIZE_BYTES" -ge "$TARGET_BYTES" ]; then
+        echo "✅ Target reached (~30GB). Stopping loader."
+        exit 0
+      fi
+
+      echo "➡️ Inserting next batch (~120MB)..."
+
+      psql "host=pg-publisher.demo.svc.cluster.local port=5432 user=postgres dbname=testdb" \
+        -c "
+        CREATE TABLE IF NOT EXISTS big_data (
+          id BIGSERIAL PRIMARY KEY,
+          payload TEXT,
+          created_at TIMESTAMP DEFAULT now()
+        );
+
+        -- Safe random payload generator (no pgcrypto)
+        INSERT INTO big_data(payload)
+        SELECT repeat(md5(random()::text || clock_timestamp()::text), 200)
+        FROM generate_series(1,20000);
+        "
+
+      echo "✅ Batch inserted successfully."
+      sleep 2
+    done
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pg-data-loader
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pg-data-loader
+  template:
+    metadata:
+      labels:
+        app: pg-data-loader
+    spec:
+      containers:
+        - name: loader
+          image: postgres:15
+          command: ["/bin/bash", "/scripts/load.sh"]
+          env:
+            - name: PGPASSWORD
+              value: password
+          volumeMounts:
+            - name: script-vol
+              mountPath: /scripts
+      volumes:
+        - name: script-vol
+          configMap:
+            name: pg-loader-script
+            defaultMode: 0777

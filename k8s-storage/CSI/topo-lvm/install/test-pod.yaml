@@ -1,0 +1,82 @@
+apiVersion:  v1
+kind: Pod
+metadata:
+  name: test-thin-pod
+  namespace: default
+spec: 
+  nodeSelector: 
+    kubernetes.io/hostname: acdc-2-2
+  
+  containers:  
+  - name:  app
+    image: ubuntu:22.04
+    command: 
+      - /bin/bash
+      - -c
+      - |
+        set -e
+        
+        echo "=========================================="
+        echo "TopoLVM Thin PVC - Data Generation Test"
+        echo "=========================================="
+        echo ""
+        echo "[$(date)] Starting data generation script..."
+        echo ""
+        
+        # Install required tools
+        echo "[$(date)] Installing tools..."
+        apt-get update -qq
+        apt-get install -y -qq uuid-runtime > /dev/null 2>&1
+        
+        echo "[$(date)] Volume Information BEFORE:"
+        df -h /data
+        echo ""
+        
+        # Create data directory
+        mkdir -p /data/test-data
+        cd /data/test-data
+        
+        echo "[$(date)] Creating 80GB of random data..."
+        echo "This will take a few minutes..."
+        echo ""
+        
+        # Generate 80GB in 8x10GB chunks (easier progress tracking)
+        for i in {1..8}; do
+          echo "[$(date)] Creating file $i of 8 (10GB each)..."
+          dd if=/dev/urandom of=random_data_$i. bin bs=1M count=10240 status=progress 2>&1 | tail -1
+          echo "[$(date)] File $i completed.  Current usage:"
+          du -sh . 
+          echo ""
+        done
+        
+        echo "[$(date)] Volume Information AFTER:"
+        df -h /data
+        echo ""
+        
+        echo "[$(date)] Total data created:"
+        du -sh /data/test-data
+        echo ""
+        
+        echo "[$(date)] Data generation completed successfully!"
+        echo "Files created:"
+        ls -lh /data/test-data/
+        echo ""
+        
+        echo "Keeping pod alive for verification..."
+        sleep infinity
+    
+    volumeMounts:
+    - name: thin-storage
+      mountPath: /data
+    
+    resources:
+      requests: 
+        memory: "8Gi"
+        cpu: "4"
+  
+  volumes: 
+  - name: thin-storage
+    persistentVolumeClaim:
+      claimName: test-thin-pvc
+  
+  restartPolicy: Always

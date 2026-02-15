@@ -72,3 +72,17 @@ terraform.tfvars
 .terraform.lock.hcl
 
 .bin/*
+
+
+# LaTeX build files
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg

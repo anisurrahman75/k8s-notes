@@ -1,0 +1,346 @@
+
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{graphicx}%\setmainfont{Times New Roman}
+\setlength{\multicolsep}{-3.0pt}
+\setlength{\columnsep}{-1pt}
+\input{glyphtounicode}
+
+\RequirePackage{tikz}
+\RequirePackage{xcolor}
+
+\definecolor{cvblue}{HTML}{0E5484}
+\definecolor{black}{HTML}{130810}
+\definecolor{darkcolor}{HTML}{0F4539}
+\definecolor{cvgreen}{HTML}{3BD80D}
+\definecolor{taggreen}{HTML}{00E278}
+\definecolor{SlateGrey}{HTML}{2E2E2E}
+\definecolor{LightGrey}{HTML}{666666}
+\colorlet{name}{black}
+\colorlet{tagline}{darkcolor}
+\colorlet{heading}{darkcolor}
+\colorlet{headingrule}{cvblue}
+\colorlet{accent}{darkcolor}
+\colorlet{emphasis}{SlateGrey}
+\colorlet{body}{LightGrey}
+
+%----------FONT OPTIONS----------
+% sans-serif
+% \usepackage[sfdefault]{FiraSans}
+% \usepackage[sfdefault]{roboto}
+% \usepackage[sfdefault]{noto-sans}
+% \usepackage[default]{sourcesanspro}
+
+% \usepackage[T1]{fontenc}
+% \usepackage[T1]{fontenc}
+% \usepackage{cochineal}
+% \usepackage{fourier}
+
+% \usepackage{fontspec}
+% \usepackage{polyglossia}
+% \setmainlanguage{german}
+% \setmainfont{Times New Roman}
+
+% serif
+\usepackage{CormorantGaramond}
+\usepackage{charter}
+
+% \pagestyle{fancy}
+% \fancyhf{}  % clear all header and footer fields
+% \fancyfoot{}
+% \renewcommand{\headrulewidth}{0pt}
+% \renewcommand{\footrulewidth}{0pt}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.19in}
+\addtolength{\topmargin}{-.7in}
+\addtolength{\textheight}{1.4in}
+\urlstyle{same}
+
+% \definecolor{airforceblue}{rgb}{0.36, 0.54, 0.66}
+\definecolor{airforceblue}{RGB}{5,150,105}
+
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+% Ensure that generate pdf is machine readable/ATS parsable
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-1pt}}
+  }
+}
+
+\newcommand{\classesList}[4]{
+    \item\small{
+        {#1 #2 #3 #4 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{\large#1} & \textbf{\small #2} \\
+      \textit{\large#3} & \textit{\small #4} \\
+      
+    \end{tabular*}\vspace{-7pt}
+}
+
+
+\newcommand{\resumeSingleSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{\large#1} & \textbf{\small #2} \\
+      
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{1.001\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & \textbf{\small #2}\\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+
+\renewcommand\labelitemi{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.0in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=0.1in]}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+\newcommand\sbullet[1][.5]{\mathbin{\vcenter{\hbox{\scalebox{#1}{$\bullet$}}}}}
+
+%-------------------------------------------\usepackage{fontspec}
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+%----------HEADING----------
+\begin{flushleft}
+    {\Huge \textbf{Anisur Rahman}} \\[4pt]
+    {\large Sr. Software Engineer at AppsCode} \\[6pt]
+
+    \faEnvelope \;
+    \href{mailto:sunny.cse7575@gmail.com}{sunny.cse7575@gmail.com}
+    \quad
+    \faPhone \;
+    \href{tel:+8801540179777}{+88 01540179777}
+    \quad
+    \faGithub \;
+    \href{https://github.com/anisurrahman75}{GitHub}
+    \quad
+    \faLinkedin \;
+    \href{https://linkedin.com/in/anisur-rahman75/}{LinkedIn}
+    \quad
+    \faMedium \;
+    \href{https://medium.com}{Medium}
+\end{flushleft}
+
+
+
+%-----------PROGRAMMING SKILLS-----------
+\section{\color{airforceblue}TECHNICAL SKILLS}
+ \begin{itemize}[leftmargin=0in, label={}]
+    \small{\item{
+     \textbf{\normalsize{Languages:}}{ \normalsize{Go (Golang), C++, Bash}} \\
+      \vspace{2pt}
+      \textbf{\normalsize{Platforms:}}{ \normalsize{Linux, Docker, Kubernetes, Openshift, Cloud-Native, AWS, GCP}} \\
+     \vspace{2pt}
+     \textbf{\normalsize{Technologies:}}{ \normalsize{REST, gRPC, Protocol Buffers, Makefile, Helm,  CI/CD, GitOps, FluxCD, Prometheus, Grafana}} \\
+    \vspace{2pt}
+     \textbf{\normalsize{Storage systems:}}{ \normalsize{LVM, ZFS, K8s-CSI, Restic, Wal-G, Velero, Rook-Ceph,  PostgreSQL, MySQL}} \\
+     \vspace{2pt}
+     \textbf{\normalsize{Core Strengths:}}{ \normalsize{Microservice, Distributed Systems, Raft, Concurrency, Parallel Processing, Software Architecture}}
+
+     % copy and paste above textbf block to add more 
+     }}
+ \end{itemize}
+ 
+ \vspace{-16pt}
+ 
+ %-----------EXPERIENCE-----------
+\section{\color{airforceblue}WORK EXPERIENCE}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Senior Software Engineer}{} 
+      {AppsCode Ltd, Dhaka, Bangladesh}{January 2023 - Present}
+      \resumeItemListStart
+            \resumeItem{\normalsize{\textbf{Golang:} Write high-performance Go code for distributed, cloud-native applications.}}
+            \resumeItem{\normalsize{\textbf{DBaaS:} Developed k8s-native managed database and disaster recovery platforms (KubeDB, KubeStash) for production clusters across global enterprises.}}  
+            \resumeItem{\normalsize{\textbf{Parallel Task Scheduling System:} Built a distributed scheduler for parallel DB backup and restore, delivering 30\% faster performance.}} 
+            \resumeItem{\normalsize{\textbf{Multi-Cloud Gateway:} Integrated NooBaa Multi-Cloud Gateway into KubeStash, enabling cross-cloud S3 bucket replication to resolve storage failover.}}
+            \resumeItem{\normalsize{\textbf{CSI driver:} Extended the Topo-LVM CSI driver to support snapshot chunking and offloading to public object storage for hybrid and on-prem setups.}}
+            \resumeItem{\normalsize{\textbf{DB Migrator:} Architected and developed a database migration framework for $RDS \Leftrightarrow $DBaaS in k8s (PG and MySQL), optimized with parallel processing and snapshot dumping, delivering ultra-fast migrations.}}
+            \resumeItem{\normalsize{\textbf{SRE:} Ensured reliability of production Kubernetes clusters on bare metal using distributed storage (Rook-Ceph), resolved critical production issues for Orange, Nokia, Huma, and Emerson, ensuring 99.9\% uptime.}}
+            \resumeItem{\normalsize{\textbf{Presentation:} Authored webinars, documentation, and blogs about DBaaS management in k8s. [1], [2], [3], [4]}}
+      \resumeItemListEnd  
+    % copy and paste above resumeSubheading block to add more 
+  \resumeSubHeadingListEnd
+\vspace{-12pt}
+
+
+\section{\color{airforceblue}PROJECTS}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      % {\href{https://kubestash.com}{KubeStash}}{}
+       {KubeStash 
+   \href{https://kubestash.com}{\faGlobe} \,
+   \href{https://github.com/kubestash}{\faGithub}}{}
+       {\small Go \,\textbullet\, \small Kubernetes \,\textbullet\,\small Helm \,\textbullet\,\small Kubebuilder \,\textbullet\,\small Cloud \,\textbullet\,\small Concurrency \,\textbullet\,\small Restic \,\textbullet\, \small Prometheus \,\textbullet\,\small Grafana}{}      
+       
+       {A complete disaster recovery solution for Databases, Workload applications and Cluster for Kubernetes environment. }{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Led development and ownership for 2.5 years from system design to release.}}
+          \resumeItem{\normalsize{Added features (retry, validation, and failure recovery) to make it a leading k8s disaster recovery solution.}}
+          \resumeItem{\normalsize{Added bucket as backup storage for all major clouds with cloud identity integration, e.g., IRSA, Pod identity.}}
+          \resumeItem{\normalsize{Architected sharded operators and controllers for large-scale, parallel backups across approx 1000+ DBaaS.}}
+          \resumeItem{\normalsize{Engineered high-performance backup \& restore plugins (concurrent, snapshot, PITR) for 10+ databases.}}
+          \resumeItem{\normalsize{Wrote Prometheus exporters and designed a Grafana monitoring dashboard.}}
+          \resumeItem{\normalsize{Authored automated E2E and chaos tests to validate reliability under 1000 database workloads.}}
+      \resumeItemListEnd  
+    % copy and paste above resumeSubheading block to add more 
+    \vspace{10pt}
+      \resumeSubheading
+       {KubeDB WAL‑G \href{https://kubedb.com}{\faGlobe} \, \href{https://github.com/kubestash}{\faGithub}}{}
+       {\small Go \,\textbullet\, \small gRPC \,\textbullet\, \small Databases \,\textbullet\,\small Distributed System \,\textbullet\,\small Chunking }{}      
+       
+       {Wal Archival and Restoration for Databases in the Cloud }{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Built a WAL archival and restoration framework supporting Point-in-Time Recovery (PITR) for KubeDB databases.}}
+          \resumeItem{\normalsize{Implemented continuous WAL shipping to any object storage.}}
+          \resumeItem{\normalsize{Architected a gRPC proxy server for WAL streaming in Kubernetes distributed environments.}}
+          \resumeItem{\normalsize{Automated DBaaS failover detection and restore from WAL backup.}}
+      \resumeItemListEnd  
+  \resumeSubHeadingListEnd
+\vspace{-12pt}
+
+
+\section{\color{airforceblue}PROJECTS}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+       {TopoLvm CSI Driver \href{https://kubestash.com}{\faGlobe} \, \href{https://github.com/kubestash}{\faGithub}}{}
+       {\small Go \,\textbullet\, \small gRPC \,\textbullet\,\small Protocol Buffers \,\textbullet\,\small LVM \,\textbullet\,\small Chunking \,\textbullet\,\small Restic \,\textbullet\, \small Prometheus \,\textbullet\,\small Grafana}{}      
+
+       {Restic-based Volumes snapshot feature for kuberntes PVC}{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Architected a gRPC server to take volume snapshot by using Kubernetes CSI workflows.}}
+          \resumeItem{\normalsize{Efficient backup and restore operations for persistent volumes for hybrid and on-prem setups.}}
+          \resumeItem{\normalsize{Wrote Prometheus Prometheus exporters for monitoring volume snapshot operations.}}
+      \resumeItemListEnd  
+
+      \resumeSubheading
+       {Migrator \href{https://kubestash.com}{\faGlobe} \, \href{https://github.com/kubestash}{\faGithub}}{}
+       {\small Go \,\textbullet\, \small gRPC \,\textbullet\,\small Protocol Buffers \,\textbullet\,\small Prometheus}{}      
+
+       {High-performance data migration engine for PostgreSQL \& MySQL}{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Architect and Developed parallel/concurrent pipelines for high-volume database data transfer.}}
+          \resumeItem{\normalsize{Designed a gRPC-based control plane for managing complex migration workflows.}}
+          \resumeItem{\normalsize{Achieved approx +-10 hours to migrate 2 TB of MySQL data from RDS to kubedb managed DBaaS.}}
+      \resumeItemListEnd  
+
+      \resumeSubheading
+       {TaskQueue \href{https://kubestash.com}{\faGlobe} \, \href{https://github.com/kubestash}{\faGithub}}{}
+       {\small Go \,\textbullet\, \small Concurrency \,\textbullet\,\small Parallel Processing }{}    
+
+       {A Kubernetes controller that manages a queue of distributed task in kuberntes environment }{}
+      
+  \resumeSubHeadingListEnd
+\vspace{-12pt}
+
+
+\section{\color{airforceblue}ACCOMPLISHMENTS}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+       {Opensource Projects}{}
+       {Contributor to WAL-G, Stash, Go-Shell, and IBM MultiCloud Gateway.}{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Multi-writer support for the go‑shell. [PR] | External DB secret reconciliation for IBM MCG. [PR]}}
+          \resumeItem{\normalsize{HookExecutionPolicy. [PR] | Charset converter to non-UTF-8. [PR] | TLS Verification support. [PR]}}
+      \resumeItemListEnd  
+
+      \resumeSubheading
+       {Competitive Programming}{}
+       {2000+ problems solved across Codeforces, Atcoder, UVA, Spoj, etc.} {}
+      \resumeItemListStart
+          \resumeItem{\normalsize{CodeChef Master (Max Rating: 2195), Codeforces Expert (1639)}}
+          \resumeItem{\normalsize{Rank 3.1\%: ICPC, Dhaka Regional 2022. [DIU‑Sedulous], Rank 3.4\%: BUET IUPC Contest 2022. [DIU‑Sedulous]}}
+      \resumeItemListEnd  
+
+              \resumeItem{\normalsize{\textbf{Project 4 title}, Sed sagittis consectetur eros, eu auctor felis lobortis vel. Sed eu risus at nunc viverra finibus. Curabitur eu quam libero. Sed euismod ante in tellus efficitur, sit amet accumsan mi sodales.} \href{[url to project demo]}{\color{blue}\underline{Try it!}}}
+
+  \resumeSubHeadingListEnd
+\vspace{-12pt}
+
+%  %-----------PROJECTS-----------
+% \section{\color{airforceblue}PROJECTS}    
+%     \resumeItemListStart
+%         \vspace{0.5pt}
+%         \resumeItem{\normalsize{\textbf{Project 1 title}, Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac justo eget nunc ultricies congue. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae.} \href{[url to project github repo]}{\color{blue}\underline{GitHub}}}
+%         \vspace{-5pt}
+        
+%         \resumeItem{\normalsize{\textbf{Project 2 title}, Vivamus nec consequat nisi. Suspendisse potenti. Sed consectetur elit sed aliquam eleifend. Sed nec quam et urna placerat placerat.} \href{[url to project demo]}{\color{blue}\underline{Try it!}}}
+%         \vspace{-5pt}
+
+%         \resumeItem{\normalsize{\textbf{Project 3 title}, Cras dignissim justo vitae dui vehicula, sed malesuada risus semper. Maecenas suscipit sapien nec ultrices consequat. Sed volutpat justo id magna rhoncus, nec ultricies libero ultrices. Sed malesuada efficitur sapien, a ultricies nulla posuere nec.}  \href{[url to github repo]}{\color{blue}\underline{GitHub}}}
+%         \vspace{-5pt}
+
+%         \resumeItem{\normalsize{\textbf{Project 4 title}, Sed sagittis consectetur eros, eu auctor felis lobortis vel. Sed eu risus at nunc viverra finibus. Curabitur eu quam libero. Sed euismod ante in tellus efficitur, sit amet accumsan mi sodales.} \href{[url to project demo]}{\color{blue}\underline{Try it!}}}
+
+%         % copy and paste above resumeItem block to add more 
+        
+%     \resumeItemListEnd  
+   
+%  \vspace{-12pt}
+% %
+
+%-----------EDUCATION-----------
+\section{\color{airforceblue}EDUCATION}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+      {Daffodil International University}{Dhaka, Bangladesh}
+      {BSc in Computer Science and Engineering}{Jan 2019 - Dec 2022}
+
+      {CGPA: 3.87 Out of 4.00}{}
+  \resumeSubHeadingListEnd
+  \vspace{-10pt}
+
+
+
+\end{document}

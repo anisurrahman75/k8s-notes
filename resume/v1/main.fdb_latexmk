@@ -1,7 +1,7 @@
 # Fdb version 4
-["pdflatex"] 1771155618.39833 "/home/anisur/go/src/github.com/anisurrahman75/2nd-brain/Resume/main.tex" "main.pdf" "main" 1771155619.28178 0
+["pdflatex"] 1771953733.4864 "/home/anisur/go/src/github.com/anisurrahman75/k8s-notes/resume/v1/main.tex" "main.pdf" "main" 1771953734.32906 0
   "/etc/texmf/web2c/texmf.cnf" 1771145729.36256 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/anisur/go/src/github.com/anisurrahman75/2nd-brain/Resume/main.tex" 1771155618.81689 15479 098c9401e08f0a336a8a44ea6322d61d ""
+  "/home/anisur/go/src/github.com/anisurrahman75/k8s-notes/resume/v1/main.tex" 1771953733.26437 14184 57f956777ff700f87163b220d2464387 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/fa5brands0.enc" 1622837620 2920 d63721872b8c77041b88e51b8f7c291d ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/fontawesome5/fa5free1.enc" 1622837620 3042 0e2b14b9be7d01075a4c4591d5d1781b ""
@@ -11,6 +11,7 @@
   "/usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchb8r.tfm" 1136768653 5184 4fd08a9613e75c1da82714d79cf8b4f1 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchbc7t.tfm" 1136768653 3592 4e65f7bb72a80801d3c0a29985f2b24d ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchr7t.tfm" 1136768653 2472 ab22c035363bbb0eb24fc2ce6fa2d921 ""
+  "/usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchr8c.tfm" 1136768653 1364 eddb79584f8d4279685d2abc2a2162ee ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchr8r.tfm" 1136768653 4644 551129616ea4f62d8f0094a3db9a3f9d ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchrc7t.tfm" 1136768653 3476 7425233da115a839f6749985251180bd ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchri7t.tfm" 1136768653 2568 58165f44b773491d02ba0f602dd480cb ""
@@ -44,6 +45,7 @@
   "/usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchb7t.vf" 1136768653 1372 e6cfde23c168b1d1864ce6aa6dffa18b ""
   "/usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchbc7t.vf" 1136768653 1948 8756c185d16c133ab8b62dca88f95869 ""
   "/usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchr7t.vf" 1136768653 1372 955cf021d0094e95829436b7bdab6458 ""
+  "/usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchr8c.vf" 1136768653 3492 1012f7b53b5692e6d6f11a0fab90a971 ""
   "/usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchri7t.vf" 1136768653 1376 a6caf4b9594dae1aa6039195e9d4e333 ""
   "/usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchri8c.vf" 1136768653 3528 21a6d525020f7d1d681170df03426b8a ""
   "/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii" 1461363279 71627 94eb9990bed73c364d7f53f960cc8c5b ""
@@ -195,9 +197,9 @@
   "/usr/share/texmf/web2c/texmf.cnf" 1707919699 40399 f2c302f7d2af602abb742093540a5834 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1771145755.40164 5472669 54eaf61a88b6b7896ebd0dac973cb29c ""
   "/var/lib/texmf/web2c/pdftex/pdflatex.fmt" 1771145790 8213748 f355b3d353436c1d8be674b91e39f833 ""
-  "main.aux" 1771155619.1799 1027 13fbd7e12933c11dc53142a115f60afe "pdflatex"
-  "main.out" 1771155619.1809 979 6694409dd9778bcef740a16d2e16ea5c "pdflatex"
-  "main.tex" 1771155618.81689 15479 098c9401e08f0a336a8a44ea6322d61d ""
+  "main.aux" 1771953734.22246 1027 13fbd7e12933c11dc53142a115f60afe "pdflatex"
+  "main.out" 1771953734.22367 979 6694409dd9778bcef740a16d2e16ea5c "pdflatex"
+  "main.tex" 1771953733.26437 14184 57f956777ff700f87163b220d2464387 ""
   (generated)
   "main.aux"
   "main.log"

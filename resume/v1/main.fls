@@ -1,9 +1,9 @@
-PWD /home/anisur/go/src/github.com/anisurrahman75/2nd-brain/Resume
+PWD /home/anisur/go/src/github.com/anisurrahman75/k8s-notes/resume/v1
 INPUT /etc/texmf/web2c/texmf.cnf
 INPUT /usr/share/texmf/web2c/texmf.cnf
 INPUT /usr/share/texlive/texmf-dist/web2c/texmf.cnf
 INPUT /var/lib/texmf/web2c/pdftex/pdflatex.fmt
-INPUT /home/anisur/go/src/github.com/anisurrahman75/2nd-brain/Resume/main.tex
+INPUT /home/anisur/go/src/github.com/anisurrahman75/k8s-notes/resume/v1/main.tex
 OUTPUT main.log
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/article.cls
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/article.cls
@@ -136,11 +136,6 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
 INPUT /usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
-INPUT /usr/share/texlive/texmf-dist/tex/generic/pdftex/glyphtounicode.tex
-INPUT /usr/share/texlive/texmf-dist/tex/generic/pdftex/glyphtounicode.tex
-INPUT /usr/share/texlive/texmf-dist/tex/generic/pdftex/glyphtounicode.tex
-INPUT /usr/share/texlive/texmf-dist/tex/generic/pdftex/glyphtounicode.tex
-INPUT /usr/share/texlive/texmf-dist/tex/generic/pdftex/glyphtounicode.tex
 INPUT /usr/share/texlive/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty
@@ -241,6 +236,11 @@ INPUT /usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothand
 INPUT /usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
 INPUT /usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
 INPUT /usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
+INPUT /usr/share/texlive/texmf-dist/tex/generic/pdftex/glyphtounicode.tex
+INPUT /usr/share/texlive/texmf-dist/tex/generic/pdftex/glyphtounicode.tex
+INPUT /usr/share/texlive/texmf-dist/tex/generic/pdftex/glyphtounicode.tex
+INPUT /usr/share/texlive/texmf-dist/tex/generic/pdftex/glyphtounicode.tex
+INPUT /usr/share/texlive/texmf-dist/tex/generic/pdftex/glyphtounicode.tex
 INPUT /usr/share/texlive/texmf-dist/tex/latex/cormorantgaramond/CormorantGaramond.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/cormorantgaramond/CormorantGaramond.sty
 INPUT /usr/share/texlive/texmf-dist/tex/generic/iftex/ifxetex.sty
@@ -355,6 +355,8 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchri8r.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchri7t.vf
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchri8r.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchri8c.vf
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchr8c.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchr8c.vf
 INPUT /usr/share/texlive/texmf-dist/fonts/vf/bitstrea/charter/bchb7t.vf
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/bitstrea/charter/bchb8r.tfm
 INPUT main.aux

@@ -1,0 +1,230 @@
+\documentclass[letterpaper,11pt]{article}
+
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+
+\setlength{\multicolsep}{-3.0pt}
+\setlength{\columnsep}{-1pt}
+\input{glyphtounicode}
+
+\definecolor{cvblue}{HTML}{0E5484}
+\definecolor{black}{HTML}{130810}
+\definecolor{darkcolor}{HTML}{0F4539}
+\definecolor{cvgreen}{HTML}{3BD80D}
+\definecolor{mycommand}{HTML}{00E278}
+\definecolor{SlateGrey}{HTML}{2E2E2E}
+\definecolor{LightGrey}{HTML}{666666}
+\colorlet{name}{black}
+\colorlet{tagline}{darkcolor}
+\colorlet{heading}{darkcolor}
+\colorlet{headingrule}{cvblue}
+\colorlet{accent}{darkcolor}
+\colorlet{emphasis}{SlateGrey}
+\colorlet{body}{LightGrey}
+
+%----------FONT OPTIONS----------
+\usepackage{CormorantGaramond}
+\usepackage{charter}
+
+% Adjust margins
+\addtolength{\oddsidemargin}{-0.6in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1.19in}
+\addtolength{\topmargin}{-.7in}
+\addtolength{\textheight}{1.4in}
+\urlstyle{same}
+
+\definecolor{airforceblue}{RGB}{5,150,105}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large\bfseries
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+% Ensure that generate pdf is machine readable/ATS parsable
+\pdfgentounicode=1
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeItem}[1]{
+  \item\small{
+    {#1 \vspace{-1pt}}
+  }
+}
+
+\newcommand{\classesList}[4]{
+    \item\small{
+        {#1 #2 #3 #4 \vspace{-2pt}}
+  }
+}
+
+\newcommand{\resumeSubheading}[4]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{\large#1} & \textbf{\small #2} \\
+      \textit{\large#3} & \textit{\small #4} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSingleSubheading}[2]{
+  \vspace{-2pt}\item
+    \begin{tabular*}{1.0\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{\large#1} & \textbf{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubSubheading}[2]{
+    \item
+    \begin{tabular*}{0.97\textwidth}{l@{\extracolsep{\fill}}r}
+      \textit{\small#1} & \textit{\small #2} \\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeProjectHeading}[2]{
+    \item
+    \begin{tabular*}{1.001\textwidth}{l@{\extracolsep{\fill}}r}
+      \small#1 & \textbf{\small #2}\\
+    \end{tabular*}\vspace{-7pt}
+}
+
+\newcommand{\resumeSubItem}[1]{\resumeItem{#1}\vspace{-4pt}}
+
+\renewcommand\labelitemi{$\vcenter{\hbox{\tiny$\bullet$}}$}
+\renewcommand\labelitemii{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\newcommand{\resumeSubHeadingListStart}{\begin{itemize}[leftmargin=0.0in, label={}]}
+\newcommand{\resumeSubHeadingListEnd}{\end{itemize}}
+\newcommand{\resumeItemListStart}{\begin{itemize}[leftmargin=0.1in]}
+\newcommand{\resumeItemListEnd}{\end{itemize}\vspace{-5pt}}
+
+\newcommand{\sbullet}[1][.5]{\mathbin{\vcenter{\hbox{\scalebox{#1}{$\bullet$}}}}}
+
+%%%%%%  RESUME STARTS HERE  %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+%----------HEADING----------
+\begin{flushleft}
+    {\Huge \textbf{Anisur Rahman}} \\[4pt]
+    {\large Sr. Software Engineer at AppsCode} \quad
+    \href{https://github.com/anisurrahman75}{\faGithub\ GitHub} \\[6pt]
+    % ... rest of contact info
+\end{flushleft}
+
+
+
+%-----------PROJECTS 1-----------
+\section{\color{airforceblue}PROJECTS}
+  \resumeSubHeadingListStart
+    \resumeSubheading
+       {KubeStash \href{https://kubestash.com}{\faGlobe} \, \href{https://github.com/kubestash}{\faGithub}}{}
+       {\small Go \,\textbullet\,\small System Design \,\textbullet\,\small Clean Architecture \,\textbullet\,\small Backend \,\textbullet\, \small Kubernetes \,\textbullet\,\small Cloud \,\textbullet\,\small Concurrency \,\textbullet\, \small Prometheus \,\textbullet\,\small Grafana}{}      
+       
+       {A complete disaster recovery solution for Databases, Workload applications and Cluster for Kubernetes environment.}{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Led design \& development and ownership for 2.5 years from system design to release.}}
+          \resumeItem{\normalsize{Architect the full backend of the bucket as backup storage for all major clouds, with cloud identity integration, e.g., IRSA, Pod identity.}}
+          \resumeItem{\normalsize{Engineered high-performance backup \& restore plugins (concurrent, snapshot, PITR) for 10+ databases.}}
+          \resumeItem{\normalsize{Added features (retry, validation, and failure recovery) to make it a leading k8s disaster recovery solution.}}
+          \resumeItem{\normalsize{Engineered high-performance backup \& restore plugins (concurrent, snapshot, PITR) for 10+ databases.}}
+          \resumeItem{\normalsize{Architected sharded operators and controllers for large-scale, parallel backups across approx 1000+ DBaaS.}}
+          \resumeItem{\normalsize{Wrote Prometheus exporters and designed a Grafana monitoring dashboard.}}
+
+      \resumeItemListEnd  
+    
+    % \vspace{10pt}
+    
+    \resumeSubheading
+       {KubeDB WAL‑G \href{https://kubedb.com/docs/v2026.1.19/guides/mssqlserver/pitr/archiver/}{\faGlobe} \, \href{https://github.com/kubedb/wal-g}{\faGithub}}{}
+       {\small Go \,\textbullet\, \small Microservice \,\textbullet\, \small gRPC \,\textbullet\, \small Databases \,\textbullet\,\small Distributed System \,\textbullet\,\small Chunking}{}      
+       
+       {Wal Archival and Restoration for Databases in the Cloud}{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Designed a microservice framework for database Point-in-Time Recovery (PITR) WAL archive.}}
+          \resumeItem{\normalsize{Implemented continuous WAL shipping to any object storage.}}
+          \resumeItem{\normalsize{Architected a gRPC proxy server for WAL streaming in Kubernetes distributed environments.}}
+          \resumeItem{\normalsize{Automated DBaaS failover detection and restore from WAL backup.}}
+      \resumeItemListEnd  
+
+       \resumeSubheading
+       {TopoLvm CSI Driver \href{https://github.com/cloudnativestorage/topolvm}{\faGithub}}{}
+       {\small Go \,\textbullet\, \small gRPC \,\textbullet\,\small FileSystems \,\textbullet\,\small LVM \,\textbullet\,\small Chunking \,\textbullet\,\small Restic \,\textbullet\, \small Prometheus \,\textbullet\,\small Grafana}{}      
+
+       {Restic-based Volumes snapshot feature for kuberntes PVC}{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Led the design \& development of Volume Snapshot feature using concurrent chunking by Kubernetes CSI workflows.}}
+          \resumeItem{\normalsize{Efficient backup and restore operations for persistent volumes for hybrid and on-prem setups.}}
+          \resumeItem{\normalsize{Wrote Prometheus Prometheus exporters for monitoring volume snapshot operations.}}
+      \resumeItemListEnd  
+
+    \resumeSubheading
+       {Migrator}{}
+       {\small Go \,\textbullet\, \small gRPC \,\textbullet\,\small Protocol Buffers \,\textbullet\,\small Prometheus}{}      
+
+       {High-performance data migration engine for PostgreSQL \& MySQL}{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Architect and Developed parallel/concurrent pipelines for high-volume database data transfer.}}
+          \resumeItem{\normalsize{Designed a gRPC-based control plane for managing complex migration workflows.}}
+          \resumeItem{\normalsize{Achieved approx +-10 hours to migrate 2 TB of MySQL data from RDS to kubedb managed DBaaS.}}
+      \resumeItemListEnd  
+
+    \resumeSubheading
+       {TaskQueue \href{https://github.com/kubeops/taskqueue}{\faGithub}}{}
+       {\small Go \,\textbullet\, \small Concurrency \,\textbullet\,\small Parallel Processing}{}    
+       
+       {A Kubernetes controller that manages a queue of distributed task in kuberntes environment}{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Built a Kubernetes controller for managing distributed task queues with concurrent processing capabilities.}}
+          \resumeItem{\normalsize{Implemented worker pool pattern for efficient task execution and resource management.}}
+      \resumeItemListEnd
+
+          \resumeSubheading
+       {AWS Credential Manager}{}
+       {\small AWS \,\textbullet\, \small IAM \,\textbullet\,\small EC2,\textbullet\,\small EKS,\textbullet\,\small Secret management,\textbullet\,\small IRSA}{}    
+       
+       {A Credentials manager who managed permission of a Role Inside kubernetes}{}
+      \resumeItemListStart
+          \resumeItem{\normalsize{Led the development of tools to manage credentials and permissions inside the Kubernetes cluster.}}
+      \resumeItemListEnd
+
+
+  \resumeSubHeadingListEnd
+\vspace{-12pt}
+
+
+%-----------PROGRAMMING SKILLS-----------
+\section{\color{airforceblue}TECHNICAL SKILLS}
+ \begin{itemize}[leftmargin=0in, label={}]
+    \small{\item{
+     \textbf{\normalsize{Languages:}}{ \normalsize{Go (Golang), C++, Bash}} \\
+      \vspace{2pt}
+      \textbf{\normalsize{Platforms:}}{ \normalsize{Linux, Docker, Kubernetes, Openshift, Cloud-Native, AWS, GCP}} \\
+     \vspace{2pt}
+     \textbf{\normalsize{Technologies:}}{ \normalsize{REST, gRPC, Protocol Buffers, Makefile, Helm, CI/CD, GitOps, FluxCD, Prometheus, Grafana}} \\
+    \vspace{2pt}
+     \textbf{\normalsize{Storage systems:}}{ \normalsize{LVM, ZFS, K8s-CSI, Restic, Wal-G, Velero, Rook-Ceph, PostgreSQL, MySQL}} \\
+     \vspace{2pt}
+     \textbf{\normalsize{Core Strengths:}}{ \normalsize{Microservice, Distributed Systems, Raft, Concurrency, Parallel Processing, Software Architecture}}
+     }}
+ \end{itemize}
+ 
+ \vspace{-16pt}
+ 
+
+\end{document}

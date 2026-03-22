@@ -1,0 +1,3 @@
+https://github.com/garethgeorge/backrest
+- Make a restic operator,and extend the ui so that it can schedule a restic backup from UI using restic
+- Make a ui by targeting a PVC and restic backup

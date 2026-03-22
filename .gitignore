@@ -86,3 +86,5 @@ terraform.tfvars
 *.lot
 *.bbl
 *.blg
+
+resume/v1/*.pdf

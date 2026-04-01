@@ -12,6 +12,11 @@ kubectl kustomize https://github.com/kubernetes-csi/external-snapshotter/client/
 kubectl -n kube-system kustomize https://github.com/kubernetes-csi/external-snapshotter/deploy/kubernetes/snapshot-controller | kubectl create -f -
 ```
 
+## Set Labels in nodes where lv is setup
+```bash
+kubectl label node acdc-2-1 topolvm-node=true
+````
+
 ### Install TopoLVM
 ```bash
 helm repo add topolvm https://topolvm.github.io/topolvm

@@ -98,7 +98,7 @@ scheduler:
   # scheduler.nodeSelector -- Specify nodeSelector on the Deployment or DaemonSet.
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   nodeSelector:
-    kubernetes.io/hostname: acdc-2-0
+    kubernetes.io/hostname: acdc-2-1
 
   # scheduler.priorityClassName -- Specify priorityClassName on the Deployment or DaemonSet.
   priorityClassName: system-cluster-critical
@@ -187,7 +187,7 @@ lvmd:
   # lvmd.nodeSelector -- Specify nodeSelector.
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   nodeSelector:
-    kubernetes.io/hostname: acdc-2-0
+    kubernetes.io/hostname: acdc-2-1
 
   # lvmd.affinity -- Specify affinity.
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
@@ -366,7 +366,7 @@ node:
   # node.nodeSelector -- Specify nodeSelector.
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   nodeSelector:
-    kubernetes.io/hostname: acdc-2-0
+    kubernetes.io/hostname: acdc-2-1
 
   # node.affinity -- Specify affinity.
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
@@ -444,7 +444,7 @@ node:
 # CSI controller service
 controller:
   # controller.replicaCount -- Number of replicas for CSI controller service.
-  replicaCount: 2
+  replicaCount: 1
 
   # controller.args -- Arguments to be passed to the command.
   args: []
@@ -542,7 +542,7 @@ controller:
   # controller.nodeSelector -- Specify nodeSelector.
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   nodeSelector:
-    kubernetes.io/hostname: acdc-2-0
+    kubernetes.io/hostname: acdc-2-1
 
   # controller.volumes -- Specify volumes.
   volumes:

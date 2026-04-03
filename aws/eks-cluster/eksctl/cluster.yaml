@@ -1,0 +1,37 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: kubestash-cred-less
+  region: us-east-1
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: ebs-csi-controller-sa
+        namespace: kube-system
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy
+    - metadata:
+        name: kubestash-kubestash-operator
+        namespace: stash
+      attachPolicyARNs:
+        - arn:aws:iam::453903318604:policy/KubestashPolicy
+    - metadata:
+        name: aws-credential-manager
+        namespace: kubeops
+      attachPolicyARNs:
+        - arn:aws:iam::453903318604:policy/ManagerPolicy
+managedNodeGroups:
+  - name: ng-1
+    instanceType: t3.large
+    desiredCapacity: 2
+    ssh:
+      allow: true
+      publicKeyName: anisur
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        ebs: true
+addons:
+  - name: aws-ebs-csi-driver
+    version: latest

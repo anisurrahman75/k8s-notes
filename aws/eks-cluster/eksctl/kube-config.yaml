@@ -1,0 +1,29 @@
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCVENDQWUyZ0F3SUJBZ0lJU3ZXNFIzTFRqWTB3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TmpBME1Ea3dORFEyTURKYUZ3MHpOakEwTURZd05EVXhNREphTUJVeApFekFSQmdOVkJBTVRDbXQxWW1WeWJtVjBaWE13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLCkFvSUJBUUM5bEtaNVdUSFZNNjMzK2dOTUlLYmYyWDN3bENUcUdsWXNnUi84N29LMGRwSHMvZ1BLRTVSR1U1VG4KRHVpM0wzbU5TUHdWSjgwdVFwdnIzTjdncUxUQTJzUmRCay9RMWd3RmFvZXlGa0NOSG1EWEUyREJqT2F6YWk1KwpFci9ZUVpkdmtTRXpQSzVDN1FJRDVIbDZxRVdRcVdPZHZIOVpNdmtBUTJvc0ZSN2NKTE9nazExV3dkejJJcXNGCjFrM2pUMURuRXMvMWwwbjRjNkJiblhNaDNOWnBGc2VFTVhTR0Q3MDhKcEJDSkJlekZCMzI1M084c1N5U3lmYXUKZWlOZVFHcUVmM1ZZdXExcUxJbXVFYkdoL2NOeWx4YmVHNFM4M1gwc3I2RjFuSHFsL3B4ek5ubmZYLy85cm1hdgp3U09uWHBadGw3Ukw0SFpoUkx1VmxibXJzaUtoQWdNQkFBR2pXVEJYTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQCkJnTlZIUk1CQWY4RUJUQURBUUgvTUIwR0ExVWREZ1FXQkJUYjdHYzFoNkREUS9QK3pUYjFEQXFHTCsrc2JUQVYKQmdOVkhSRUVEakFNZ2dwcmRXSmxjbTVsZEdWek1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQUZzaFI3WkhIOApOVWpoMnUxakE2NW1RYnQzSlh1d3Yxb0V4Qmt0UlNuR3lVZHJSMTI0SkNZSVdvVUt0WG9iVDdHZXFoNFlXcXd6CkRTQWpyVVZsK1FBUjVIUDl6bDhNWTV1Y0Zlb0Q2WWdwSVV1eE9kalEwZmJrTVlSSVdHU1JNK1dmQjJuaGVMU04KMyt4TzA2V05hMU9uV0g3REg0MzkrWnhkM2c4MkUwclBsRVZ4TmNweFRCNkFoN3RzMkdwQUpiRmt5WW9TOWdGZApmOVRkQTRyc1UwZWRveEdYemRnckFKSDJqdWhyWFhtemVScDN5SXZpanNzYUVuYWxhTE4rbit6cFhzMFV6dUdvClc4YTlBVmUyS2dNZE9TaGIraXNtQ040bTZZdnJETWNjUGdYWm92aXlvamoxT2JBc3NUYU5EZjZxcXdxMUN1MTcKdktxdFQ5SGhCTHc1Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    server: https://FAE6F1454840B3BCA8AEAE057F32EE98.gr7.us-east-1.eks.amazonaws.com
+  name: kubestash-cred-less.us-east-1.eksctl.io
+contexts:
+- context:
+    cluster: kubestash-cred-less.us-east-1.eksctl.io
+    user: ace@kubestash-cred-less.us-east-1.eksctl.io
+  name: ace@kubestash-cred-less.us-east-1.eksctl.io
+current-context: ace@kubestash-cred-less.us-east-1.eksctl.io
+kind: Config
+users:
+- name: ace@kubestash-cred-less.us-east-1.eksctl.io
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      args:
+      - token
+      - -i
+      - kubestash-cred-less
+      command: aws-iam-authenticator
+      env:
+      - name: AWS_STS_REGIONAL_ENDPOINTS
+        value: regional
+      - name: AWS_DEFAULT_REGION
+        value: us-east-1
+      provideClusterInfo: false

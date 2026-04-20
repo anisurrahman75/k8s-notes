@@ -24,7 +24,17 @@ iam:
 managedNodeGroups:
   - name: ng-1
     instanceType: t3.large
-    desiredCapacity: 2
+    desiredCapacity: 1
+    ssh:
+      allow: true
+      publicKeyName: anisur
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        ebs: true
+  - name: ng-2
+    instanceType: m5.2xlarge
+    desiredCapacity: 1
     ssh:
       allow: true
       publicKeyName: anisur
@@ -34,4 +44,6 @@ managedNodeGroups:
         ebs: true
 addons:
   - name: aws-ebs-csi-driver
+    version: latest
+  - name: snapshot-controller
     version: latest

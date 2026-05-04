@@ -1,0 +1,65 @@
+# Statically provisioned PVC:
+# An existing bucket or path inside bucket manually created
+# by the administrator beforehand will be bound to the PVC,
+# and it won't be removed when you remove the PV
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: manualbucket-with-path
+spec:
+  storageClassName: csi-s3
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteMany
+  claimRef:
+    namespace: csi-s3
+    name: csi-s3-manual-pvc
+  csi:
+    driver: ru.yandex.s3.csi
+    controllerPublishSecretRef:
+      name: csi-s3-secret
+      namespace: csi-s3
+    nodePublishSecretRef:
+      name: csi-s3-secret
+      namespace: csi-s3
+    nodeStageSecretRef:
+      name: csi-s3-secret
+      namespace: csi-s3
+    volumeAttributes:
+      capacity: 10Gi
+      mounter: geesefs
+      options: --memory-limit 1000 --dir-mode 0777 --file-mode 0666
+    volumeHandle: kubestash/fuse
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: csi-s3-manual-pvc
+  namespace: csi-s3
+spec:
+  # Empty storage class disables dynamic provisioning
+  storageClassName: "csi-s3"
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: csi-s3-test-nginx
+  namespace: csi-s3
+spec:
+  containers:
+    - name: csi-s3-test-nginx
+      image: nginx
+      volumeMounts:
+        - mountPath: /usr/share/nginx/html/s3
+          name: webroot
+  volumes:
+    - name: webroot
+      persistentVolumeClaim:
+        claimName: csi-s3-manual-pvc
+        readOnly: false

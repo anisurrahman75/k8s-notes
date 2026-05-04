@@ -3,7 +3,6 @@
 lsblk # Pick the disk to use, e.g., /dev/sda
 pvcreate /dev/sda # Initialize the physical volume
 vgcreate myvg1 /dev/sda # Create a volume group named myvg1
-lvcreate -T -n pool0 -L 50G myvg1 # Create a thin pool named pool0 with size 4G in the volume group myvg1
 ```
 
 ### Install VolumeSnapshot CRDs and the cluster-wide controller:
@@ -14,7 +13,7 @@ kubectl -n kube-system kustomize https://github.com/kubernetes-csi/external-snap
 
 ## Set Labels in nodes where lv is setup
 ```bash
-kubectl label node acdc-2-1 topolvm-node=true
+kubectl label node acdc-2-1 topolvm.io/enabled: "true"
 ````
 
 ### Install TopoLVM

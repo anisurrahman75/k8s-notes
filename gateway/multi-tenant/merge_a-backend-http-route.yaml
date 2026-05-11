@@ -1,0 +1,24 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: a-backend-route-merged
+  namespace: a
+spec:
+  parentRefs:
+    - name: my-merged-gateway1
+      namespace: demo
+      sectionName: a
+  #  hostnames:
+  #    - "a-backend.example.com"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      # Backend services to send traffic to
+      backendRefs:
+        - name: app-v1
+          port: 80
+
+---

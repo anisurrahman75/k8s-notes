@@ -6,7 +6,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: a
+  name: b
 ---
 apiVersion: apps/v1
 kind: Deployment

@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgres-auth
+  namespace: database
+type: Opaque
+stringData:
+  POSTGRES_USER: admin
+  POSTGRES_PASSWORD: strongpassword
+  POSTGRES_DB: appdb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-postgres-1
+  namespace: database
+  labels:
+    app: demo-postgres-1
+spec:
+  clusterIP: None
+  selector:
+    app: demo-postgres-1
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: demo-postgres-1
+  namespace: database
+spec:
+  serviceName: demo-postgres-1
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-postgres-1
+  template:
+    metadata:
+      labels:
+        app: demo-postgres-1
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5432
+              name: postgres
+          envFrom:
+            - secretRef:
+                name: postgres-auth
+          volumeMounts:
+            - name: demo-postgres-1
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 15
+            periodSeconds: 20
+  volumeClaimTemplates:
+    - metadata:
+        name: demo-postgres-1
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

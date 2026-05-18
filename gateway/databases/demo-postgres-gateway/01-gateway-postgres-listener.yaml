@@ -1,0 +1,21 @@
+
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: postgres-gateway
+  namespace: default
+spec:
+  gatewayClassName: eg
+  listeners:
+    - name: postgres-tls
+      hostname: "*.db.infrasnow.com"
+      port: 5432
+      protocol: TLS
+      tls:
+        mode: Passthrough
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              dbaas.infrasnow.com/routes-allowed: "true"

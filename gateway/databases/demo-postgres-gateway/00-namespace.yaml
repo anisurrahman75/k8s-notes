@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: demo-db
+  labels:
+    dbaas.infrasnow.com/routes-allowed: "true"
+

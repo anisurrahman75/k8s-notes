@@ -3,7 +3,5 @@ kind: Kustomization
 resources:
   - 00-namespace.yaml
   - 01-gateway-postgres-listener.yaml
-  - 02-postgres-secret.yaml
-  - 03-postgres-statefulset.yaml
-  - 04-tlsroute.yaml
-  - 05-networkpolicy.yaml
+  - 02-demo-pg-1.yaml
+  - 03-demo-pg-2.yaml

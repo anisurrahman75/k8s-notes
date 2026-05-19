@@ -8,7 +8,7 @@ It creates:
 - `postgres-gateway` Gateway with a TLS passthrough listener on port `5432`.
 - TLS-enabled PostgreSQL 17 `StatefulSet`.
 - Internal `ClusterIP` Service for Gateway routing.
-- `TLSRoute` for `demo-pg.db.infrasnow.com`.
+- `TLSRoute` for `demo-pg-1.db.infrasnow.com`.
 - Basic ingress NetworkPolicies.
 
 Apply:
@@ -21,7 +21,7 @@ Check status:
 
 ```sh
 kubectl get gateway -n default postgres-gateway
-kubectl get tlsroute -n demo-db demo-postgres
+kubectl get tlsroute -n demo-db
 kubectl get pod,svc -n demo-db
 ```
 
@@ -31,16 +31,22 @@ Find the Envoy Gateway external address:
 kubectl get svc -n envoy-gateway-system
 ```
 
-Point `demo-pg.db.infrasnow.com` to the Envoy Gateway external address, then connect with direct TLS negotiation:
+Point both database hostnames to the Envoy Gateway external address:
+
+- `demo-pg-1.db.infrasnow.com`
+- `demo-pg-2.db.infrasnow.com`
+
+Then connect to each hostname with direct TLS negotiation:
 
 ```sh
-PGPASSWORD=demo-password psql "host=demo-pg.db.infrasnow.com port=5432 user=demo dbname=appdb sslmode=require sslnegotiation=direct"
+PGPASSWORD=demo-password psql "host=demo-pg-1.db.infrasnow.com port=5432 user=demo dbname=appdb sslmode=require sslnegotiation=direct"
+PGPASSWORD=demo-password psql "host=demo-pg-1.db.infrasnow.com port=5432 user=demo dbname=appdb sslmode=require sslnegotiation=direct"
 ```
 
-Notes:
+To verify routing is going to different backends, compare the connected database and server address:
 
-- This is a demo, not a production PostgreSQL deployment.
-- The PostgreSQL pod generates a short-lived self-signed TLS certificate at startup.
-- `TLSRoute` requires Gateway API experimental CRDs in many clusters. This demo uses `gateway.networking.k8s.io/v1alpha3`.
-- `sslnegotiation=direct` is required so the client starts TLS immediately and Envoy Gateway can route by SNI.
-- In Cloudflare, the database hostname must expose raw TCP `5432`. Use a DNS-only record pointing to the Gateway load balancer, or a TCP proxy product such as Cloudflare Spectrum. A normal proxied HTTP(S) Cloudflare record will not forward PostgreSQL.
+```sh
+PGPASSWORD=demo-password psql "host=demo-pg.db-1.infrasnow.com port=5432 user=demo dbname=appdb sslmode=require sslnegotiation=direct" -c "select current_database(), inet_server_addr();"
+PGPASSWORD=demo-password psql "host=demo-pg.db-2.infrasnow.com port=5432 user=demo dbname=appdb sslmode=require sslnegotiation=direct" -c "select current_database(), inet_server_addr();"
+```
+

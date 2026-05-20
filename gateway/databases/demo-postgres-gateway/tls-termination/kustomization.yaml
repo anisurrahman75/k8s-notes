@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - 00-namespace.yaml
+  # - 01-clusterissuer.yaml
+  # - 02-cloudflare-token-secret.yaml
+  - 03-wildcard-certificate.yaml
+  - 04-gateway.yaml
+  - 05-demo-pg-1.yaml
+  - 06-demo-pg-2.yaml
+  - 07-pgbouncer.yaml

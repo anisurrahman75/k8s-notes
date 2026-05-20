@@ -1,0 +1,18 @@
+# Wildcard Certificate for PostgreSQL TLS.
+# cert-manager will create a Secret named "pg-wildcard-tls" in demo-db namespace
+# containing tls.crt and tls.key signed by Let's Encrypt.
+# Covers: demo-pg-1.db.infrasnow.com, demo-pg-2.db.infrasnow.com, and any future *.db.infrasnow.com.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: pg-wildcard-cert
+  namespace: demo-db
+spec:
+  secretName: pg-wildcard-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  dnsNames:
+    - "*.db.infrasnow.com"
+  # Renew 30 days before expiry (Let's Encrypt certs are 90-day)
+  renewBefore: 720h

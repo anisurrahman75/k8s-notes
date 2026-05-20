@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: demo-postgres-auth-2
-  namespace: demo-db
+  namespace: demo-db-standard
 type: Opaque
 stringData:
   POSTGRES_USER: demo
@@ -14,7 +14,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: demo-postgres-headless-2
-  namespace: demo-db
+  namespace: demo-db-standard
   labels:
     app.kubernetes.io/name: demo-postgres-2
 spec:
@@ -31,7 +31,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: demo-postgres-2
-  namespace: demo-db
+  namespace: demo-db-standard
   labels:
     app.kubernetes.io/name: demo-postgres-2
 spec:
@@ -48,7 +48,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: demo-postgres-2
-  namespace: demo-db
+  namespace: demo-db-standard
   labels:
     app.kubernetes.io/name: demo-postgres-2
 spec:
@@ -110,21 +110,3 @@ spec:
         resources:
           requests:
             storage: 1Gi
-
----
-apiVersion: gateway.networking.k8s.io/v1alpha3
-kind: TLSRoute
-metadata:
-  name: demo-postgres-2
-  namespace: demo-db
-spec:
-  parentRefs:
-    - name: postgres-gateway
-      namespace: default
-      sectionName: postgres-tls
-  hostnames:
-    - demo-pg-2.db.infrasnow.com
-  rules:
-    - backendRefs:
-        - name: pgbouncer
-          port: 5432

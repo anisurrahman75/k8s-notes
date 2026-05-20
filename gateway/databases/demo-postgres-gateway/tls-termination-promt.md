@@ -1,143 +1,62 @@
-You are a senior platform engineer and distributed systems architect specializing in Kubernetes, Envoy Proxy, Gateway API, and database proxy architectures.
+You are designing a production PostgreSQL DBaaS ingress architecture on Kubernetes with Envoy Gateway, Gateway API, PostgreSQL 17, PgBouncer, cert-manager, Let's Encrypt, and Cloudflare.
 
-I am building a production-grade PostgreSQL DBaaS platform similar to Railway, Neon, or Supabase.
+## Constraint that must not be violated
 
-Current architecture:
+Standard PostgreSQL clients do **not** start with a TLS ClientHello.
+They start with:
 
-* Kubernetes
-* Envoy Gateway
-* Gateway API
-* PostgreSQL
-* TLSRoute with TLS passthrough
-* SNI hostname routing
+1. TCP connect
+2. PostgreSQL `SSLRequest`
+3. server replies `S`
+4. TLS handshake starts
 
-Current problem:
-My current architecture requires:
+Because of that, a generic Gateway TLS listener cannot be the first TLS endpoint if the goal is to support normal PostgreSQL clients without `sslnegotiation=direct`.
 
-```text
-sslnegotiation=direct
-```
+## Therefore
 
-because Envoy Gateway must route based on SNI before PostgreSQL SSL negotiation starts.
+Do **not** propose a design where:
 
-This causes compatibility problems with:
+- Envoy Gateway terminates TLS directly for stock PostgreSQL clients on port `5432`
+- hostname-based SNI routing at the Gateway is used before PostgreSQL `SSLRequest`
+- `TLSRoute` passthrough is claimed to solve normal client compatibility
 
-* older PostgreSQL clients
-* ORMs
-* JDBC
-* many PostgreSQL drivers
-* tools that do not support direct TLS negotiation
+That architecture still breaks standard clients.
 
-I want to redesign the architecture to eliminate this limitation.
+## Working target architecture
 
-New desired architecture:
+Design the solution around:
 
-* Envoy Gateway should terminate TLS at the Gateway layer.
-* Use Let's Encrypt wildcard certificates at Envoy Gateway.
-* PostgreSQL clients should connect normally using:
+- Envoy Gateway with a raw `TCP` listener on `5432`
+- `TCPRoute` forwarding all PostgreSQL traffic to a PostgreSQL-aware proxy
+- PgBouncer, Odyssey, pgcat, or a custom PostgreSQL proxy as the public protocol endpoint
+- the proxy handling:
+  - `SSLRequest`
+  - TLS termination
+  - StartupMessage parsing
+  - routing by `dbname`, `user`, tenant ID, or optionally SNI after SSL negotiation begins
+- PostgreSQL backends on private networking
+- cert-manager managed wildcard certificate such as `*.db.infrasnow.com`
 
-```text
-sslmode=verify-full
-```
+## Required outcomes
 
-without requiring:
+The design must:
 
-```text
-sslnegotiation=direct
-```
+- work with standard PostgreSQL clients
+- support `sslmode=verify-full`
+- not require `sslnegotiation=direct`
+- explain why Gateway TLS termination alone is insufficient
+- explain the tradeoff that hostname-based routing at the Gateway is lost
+- explain what is needed if hostname-based tenant routing must be preserved
 
-* Support standard PostgreSQL clients naturally.
-* Envoy should become the public TLS endpoint.
-* Internal traffic may optionally use internal TLS or private networking.
-* PostgreSQL should no longer need to expose public TLS certificates directly.
+## Deliverables
 
-I want a production-grade architecture design for:
+Provide:
 
-* PostgreSQL DBaaS
-* Envoy Gateway
-* PostgreSQL-aware proxying/filtering
-* Kubernetes Gateway API
-
-Requirements:
-
-1. Explain the PostgreSQL SSL negotiation problem in detail.
-2. Explain why TLS passthrough + TLSRoute requires `sslnegotiation=direct`.
-3. Explain why terminating TLS at Envoy solves the compatibility issue.
-4. Design a new architecture where Envoy terminates TLS.
-5. Explain whether to use:
-
-    * TCPRoute
-    * TLSRoute
-    * custom Gateway API resources
-6. Explain how Envoy should route PostgreSQL traffic after TLS termination.
-7. Explain how PostgreSQL protocol inspection could work.
-8. Explain how Envoy/PostgreSQL filters could inspect:
-
-    * startup packet
-    * database name
-    * username
-    * SSLRequest
-9. Explain possible routing strategies:
-
-    * hostname routing
-    * username routing
-    * database routing
-    * tenant routing
-10. Explain how PgBouncer should fit into the architecture.
-11. Explain whether PostgreSQL should still use internal TLS.
-12. Explain how Let's Encrypt certificates should be managed.
-13. Explain how wildcard certificates should be used.
-14. Explain how SNI routing changes after TLS termination.
-15. Explain how this compares to architectures used by:
-
-* Railway
-* Neon
-* Supabase
-
-16. Explain operational challenges:
-
-* connection pooling
-* auth
-* failover
-* scaling
-* protocol complexity
-
-17. Explain whether Envoy already supports PostgreSQL proxying natively.
-18. If not, explain possible implementation approaches:
-
-* custom Envoy filter
-* WASM filter
-* external processing
-* sidecar proxy
-* custom PostgreSQL proxy service
-
-19. Explain the tradeoffs between:
-
-* TLS passthrough architecture
-* TLS termination architecture
-
-20. Design a future-proof architecture for a production DBaaS platform.
-
-Also include:
-
-* detailed architecture diagrams
-* example Gateway API manifests
-* Envoy architecture recommendations
-* traffic flow explanations
-* security considerations
-* scaling considerations
-* Kubernetes-native implementation ideas
-
-Assume:
-
-* Kubernetes
-* Envoy Gateway
-* Gateway API v1
-* PostgreSQL 17
-* PgBouncer
-* cert-manager
-* Let's Encrypt
-* Cloudflare DNS
-* Percona PostgreSQL/OpenEverest
-* multi-tenant DBaaS environment
-
+- architecture explanation
+- traffic flow
+- Gateway API manifests
+- PgBouncer or proxy manifests
+- cert-manager certificate manifests
+- operational caveats
+- security notes
+- scaling notes

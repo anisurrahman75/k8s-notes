@@ -9,3 +9,4 @@ resources:
   - 05-demo-pg-1.yaml
   - 06-demo-pg-2.yaml
   - 07-pgbouncer.yaml
+  - 08-tcp-route.yaml

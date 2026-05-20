@@ -1,18 +1,23 @@
 apiVersion: v1
-kind: ConfigMap
+kind: Secret
 metadata:
   name: pgbouncer-config
-  namespace: demo-db
-data:
+  namespace: demo-db-standard
+type: Opaque
+stringData:
   pgbouncer.ini: |
     [databases]
-    appdb_1 = host=demo-postgres-1.demo-db.svc.cluster.local port=5432 dbname=appdb user=demo password=demo-password
-    appdb_2 = host=demo-postgres-2.demo-db.svc.cluster.local port=5432 dbname=appdb user=demo password=demo-password
+    appdb_1 = host=demo-postgres-1.demo-db-standard.svc.cluster.local port=5432 dbname=appdb user=demo password=demo-password
+    appdb_2 = host=demo-postgres-2.demo-db-standard.svc.cluster.local port=5432 dbname=appdb user=demo password=demo-password
 
     [pgbouncer]
     listen_addr = 0.0.0.0
     listen_port = 5432
-    auth_type = any
+    unix_socket_dir = /tmp
+    auth_type = md5
+    auth_file = /etc/pgbouncer/userlist.txt
+    admin_users = pgbouncer
+    stats_users = pgbouncer
     pool_mode = transaction
     max_client_conn = 1000
     default_pool_size = 20
@@ -26,20 +31,22 @@ data:
     log_disconnections = 0
     log_pooler_errors = 1
     stats_period = 60
-    client_tls_sslmode = allow
-    client_tls_cert_file = /etc/pgbouncer-tls/tls.crt
-    client_tls_key_file = /etc/pgbouncer-tls/tls.key
+    ignore_startup_parameters = extra_float_digits,options
+    client_tls_sslmode = require
+    client_tls_cert_file = /etc/pgbouncer/tls/tls.crt
+    client_tls_key_file = /etc/pgbouncer/tls/tls.key
+    server_tls_sslmode = disable
 
   userlist.txt: |
     "pgbouncer" "md57ffa3197c33171c4020e3a16824a1e3d"
-    "demo" "md575f923431a04c44196d04af18766037"
+    "demo" "md5319b02697f39df070cf2ab13205b5a8a"
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pgbouncer
-  namespace: demo-db
+  namespace: demo-db-standard
   labels:
     app.kubernetes.io/name: pgbouncer
 spec:
@@ -66,7 +73,7 @@ spec:
               mountPath: /etc/pgbouncer
               readOnly: true
             - name: tls
-              mountPath: /etc/pgbouncer-tls
+              mountPath: /etc/pgbouncer/tls
               readOnly: true
           readinessProbe:
             tcpSocket:
@@ -87,11 +94,11 @@ spec:
               memory: 128Mi
       volumes:
         - name: config
-          configMap:
-            name: pgbouncer-config
+          secret:
+            secretName: pgbouncer-config
         - name: tls
           secret:
-            secretName: pg-wildcard-tls
+            secretName: pgbouncer-public-tls
             defaultMode: 0600
 
 ---
@@ -99,7 +106,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: pgbouncer
-  namespace: demo-db
+  namespace: demo-db-standard
   labels:
     app.kubernetes.io/name: pgbouncer
 spec:

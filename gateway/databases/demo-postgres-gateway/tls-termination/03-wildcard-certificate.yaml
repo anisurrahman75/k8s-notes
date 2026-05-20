@@ -2,9 +2,9 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: pg-wildcard-cert
-  namespace: demo-db
+  namespace: demo-db-standard
 spec:
-  secretName: pg-wildcard-tls
+  secretName: pgbouncer-public-tls
   issuerRef:
     name: letsencrypt-prod
     kind: ClusterIssuer

@@ -1,67 +1,85 @@
-# PostgreSQL TLS Termination with PgBouncer
+# Standard PostgreSQL Clients via Envoy Gateway TCPRoute + PgBouncer
 
-Envoy Gateway routes PostgreSQL traffic by SNI hostname. PgBouncer handles TLS termination and the PostgreSQL protocol. PostgreSQL runs without SSL.
+This variant is the working design for normal PostgreSQL clients.
+
+It does **not** terminate TLS at Envoy Gateway. Instead:
+
+- Envoy Gateway accepts raw TCP on port `5432`
+- `TCPRoute` forwards every connection to PgBouncer
+- PgBouncer answers PostgreSQL `SSLRequest`
+- PgBouncer terminates TLS with a wildcard Let's Encrypt certificate
+- PgBouncer routes to the correct PostgreSQL backend by `dbname`
+
+That is the critical difference from the earlier `TLSRoute` design: standard PostgreSQL clients start with a plaintext `SSLRequest`, so a generic TLS listener at the Gateway cannot be the first TLS endpoint.
 
 ## Architecture
 
-```
-Client (sslnegotiation=direct sslmode=verify-full)
-  │ PostgreSQL SSLRequest skipped (direct TLS)
-  │ TLS ClientHello with SNI: demo-pg-1.db.infrasnow.com
+```text
+Client (standard PostgreSQL SSL negotiation)
+  │
+  │ 1. TCP connect
+  │ 2. SSLRequest
   ▼
-Envoy Gateway (TLS Passthrough, port 5432)
-  │ routes by SNI hostname via TLSRoute
-  │ forwards raw TCP
+Envoy Gateway (TCP listener, port 5432)
+  │
+  │ TCPRoute
   ▼
-PgBouncer (handles TLS + PostgreSQL protocol)
-  │ responds to PostgreSQL startup message
-  │ connection pooling (transaction mode)
-  │ routes by database name to PostgreSQL backend
+PgBouncer
+  │ 3. returns 'S'
+  │ 4. performs TLS handshake with wildcard cert
+  │ 5. reads StartupMessage
+  │ 6. routes by dbname
   ▼
-PostgreSQL (ssl=off)
-```
-
-## Why sslnegotiation=direct is required
-
-PostgreSQL's standard SSL flow sends an 8-byte SSLRequest message before TLS starts. This message has no SNI hostname. Envoy Gateway needs SNI to route, so it can't forward the SSLRequest.
-
-`sslnegotiation=direct` skips the SSLRequest and starts TLS immediately with SNI, which Envoy can route.
-
-```
-Standard PostgreSQL SSL:
-  Client → SSLRequest (no SNI) → Gateway → can't route → connection closed
-
-Direct SSL:
-  Client → ClientHello (has SNI) → Gateway → routes by SNI → PgBouncer → TLS → PostgreSQL
+PostgreSQL backend (ssl=off)
 ```
 
 ## What gets created
 
-- `demo-db` namespace
-- `letsencrypt-prod` ClusterIssuer (commented out — already exists in cluster)
-- `pg-wildcard-cert` Certificate — Let's Encrypt wildcard cert in `demo-db`
-- `postgres-gateway` Gateway — TLS Passthrough on port 5432
-- `BackendTrafficPolicy` — backend connection settings
+- Namespace: `demo-db-standard`
+- Optional `ClusterIssuer` and Cloudflare token secret examples
+- cert-manager `Certificate` for `*.db.infrasnow.com`
+- Dedicated Gateway `postgres-std-gateway` with a TCP listener on `5432`
+- `BackendTrafficPolicy` for TCP backend behavior
 - Two PostgreSQL 17 StatefulSets with `ssl=off`
-- Two TLSRoute resources with hostname-based routing
-- PgBouncer Deployment (2 replicas) — handles TLS + PostgreSQL protocol + connection pooling
-- PgBouncer Service — ClusterIP
+- PgBouncer Deployment and Service
+- One `TCPRoute` from the Gateway listener to PgBouncer
 
-## Database routing
+## Routing model
 
-PgBouncer routes by database name:
+Routing happens in PgBouncer by database name:
 
-| Client connects to | PgBouncer routes to |
+| Client dbname | Backend |
 |---|---|
-| `dbname=appdb_1` | `demo-postgres-1` (PostgreSQL instance 1) |
-| `dbname=appdb_2` | `demo-postgres-2` (PostgreSQL instance 2) |
+| `appdb_1` | `demo-postgres-1` |
+| `appdb_2` | `demo-postgres-2` |
 
-## Prerequisites
+The hostname is still useful for TLS certificate validation, but it is **not** used for routing in this design.
 
-- Envoy Gateway installed
-- cert-manager installed
-- Cloudflare DNS with API token
-- Gateway API CRDs (v1 + v1alpha3 for TLSRoute)
+## Why this works without `sslnegotiation=direct`
+
+Normal PostgreSQL clients do this:
+
+1. open a TCP connection
+2. send `SSLRequest`
+3. wait for the server to reply with `S`
+4. start the TLS handshake
+
+PgBouncer understands that flow. A Gateway TLS listener does not.
+
+Because Envoy Gateway is only proxying raw TCP here, the PostgreSQL handshake remains intact and stock clients can use:
+
+- `sslmode=verify-full`
+- no `sslnegotiation=direct`
+
+## Tradeoff
+
+This design restores client compatibility, but you lose hostname-based routing at the Gateway layer.
+
+If you need `demo-pg-1.db.infrasnow.com` and `demo-pg-2.db.infrasnow.com` to select different tenants without changing `dbname`, you need one of these:
+
+- a dedicated PgBouncer or proxy service per tenant
+- a custom PostgreSQL-aware proxy that routes by SNI or StartupMessage
+- a different public entrypoint model than shared Gateway TLS passthrough
 
 ## Apply
 
@@ -74,8 +92,8 @@ kubectl kustomize gateway/databases/demo-postgres-gateway/tls-termination | kube
 ### Certificate
 
 ```sh
-kubectl get certificate -n demo-db pg-wildcard-cert
-kubectl get secret -n demo-db pg-wildcard-tls
+kubectl get certificate -n demo-db-standard pg-wildcard-cert
+kubectl get secret -n demo-db-standard pgbouncer-public-tls
 ```
 
 Expected: `Ready=True`
@@ -83,15 +101,16 @@ Expected: `Ready=True`
 ### Gateway
 
 ```sh
-kubectl get gateway -n default postgres-gateway
+kubectl get gateway -n default postgres-std-gateway
 ```
 
 Expected: `Programmed=True`
 
-### TLSRoute
+### TCPRoute
 
 ```sh
-kubectl get tlsroute -n demo-db
+kubectl get tcproute -n demo-db-standard
+kubectl describe tcproute -n demo-db-standard postgres-standard-clients
 ```
 
 Expected: `Accepted=True`
@@ -99,8 +118,8 @@ Expected: `Accepted=True`
 ### PgBouncer
 
 ```sh
-kubectl get pods -n demo-db -l app.kubernetes.io/name=pgbouncer
-kubectl get svc -n demo-db pgbouncer
+kubectl get pods -n demo-db-standard -l app.kubernetes.io/name=pgbouncer
+kubectl get svc -n demo-db-standard pgbouncer
 ```
 
 ### TLS handshake
@@ -108,93 +127,42 @@ kubectl get svc -n demo-db pgbouncer
 ```sh
 openssl s_client \
   -connect demo-pg-1.db.infrasnow.com:5432 \
-  -servername demo-pg-1.db.infrasnow.com
+  -servername demo-pg-1.db.infrasnow.com -starttls postgres
 ```
 
-Expected: Let's Encrypt wildcard certificate `*.db.infrasnow.com`
+Expected: a valid certificate for `*.db.infrasnow.com`
 
 ## Connect
 
-### psql — sslmode=verify-full (recommended)
+### PostgreSQL instance 1
 
 ```sh
 PGPASSWORD=demo-password psql \
-  "host=demo-pg-1.db.infrasnow.com port=5432 user=demo dbname=appdb_1 sslmode=verify-full sslnegotiation=direct sslrootcert=system"
+  "host=demo-pg-1.db.infrasnow.com port=5432 user=demo dbname=appdb_1 sslmode=verify-full sslrootcert=system"
 ```
 
-### psql — sslmode=require
+### PostgreSQL instance 2
 
 ```sh
 PGPASSWORD=demo-password psql \
-  "host=demo-pg-1.db.infrasnow.com port=5432 user=demo dbname=appdb_1 sslmode=require sslnegotiation=direct"
+  "host=demo-pg-2.db.infrasnow.com port=5432 user=demo dbname=appdb_2 sslmode=verify-full sslrootcert=system"
 ```
 
-### Verify routing to different backends
+### Verify backend selection
 
 ```sh
 PGPASSWORD=demo-password psql \
-  "host=demo-pg-1.db.infrasnow.com port=5432 user=demo dbname=appdb_1 sslmode=require sslnegotiation=direct" \
+  "host=demo-pg-1.db.infrasnow.com port=5432 user=demo dbname=appdb_1 sslmode=require" \
   -c "select current_database(), inet_server_addr();"
 
 PGPASSWORD=demo-password psql \
-  "host=demo-pg-2.db.infrasnow.com port=5432 user=demo dbname=appdb_2 sslmode=require sslnegotiation=direct" \
+  "host=demo-pg-2.db.infrasnow.com port=5432 user=demo dbname=appdb_2 sslmode=require" \
   -c "select current_database(), inet_server_addr();"
 ```
 
-Each returns a different `inet_server_addr()`.
+## Operational notes
 
-### JDBC
-
-```
-jdbc:postgresql://demo-pg-1.db.infrasnow.com:5432/appdb_1?sslmode=verify-full&sslnegotiation=direct
-```
-
-### Connection string (URI)
-
-```
-postgresql://demo:demo-password@demo-pg-1.db.infrasnow.com:5432/appdb_1?sslmode=verify-full&sslnegotiation=direct
-```
-
-## Comparison: Three architectures
-
-| | TLS Passthrough (no PgBouncer) | TLS Termination at Gateway | TLS Passthrough + PgBouncer (this) |
-|---|---|---|---|
-| Gateway mode | Passthrough | Terminate | Passthrough |
-| TLS terminated at | PostgreSQL pod | Gateway | PgBouncer |
-| PostgreSQL SSL | `ssl=on` | `ssl=off` | `ssl=off` |
-| Certificate | self-signed or per-pod | wildcard at Gateway | wildcard at PgBouncer |
-| SNI routing | yes | yes | yes |
-| `sslnegotiation=direct` | required | required | required |
-| `sslmode=verify-full` | requires custom CA | works with system CA | works with system CA |
-| Connection pooling | no | no | yes (PgBouncer) |
-| Protocol awareness | no | no | yes (PgBouncer) |
-| Client compatibility | PostgreSQL 17+ | PostgreSQL 17+ | PostgreSQL 17+ |
-
-## Key files
-
-| File | Purpose |
-|---|---|
-| `04-gateway.yaml` | Gateway (TLS Passthrough) + BackendTrafficPolicy |
-| `03-wildcard-certificate.yaml` | cert-manager Certificate for `*.db.infrasnow.com` in `demo-db` |
-| `05-demo-pg-1.yaml` | PostgreSQL StatefulSet + TLSRoute → PgBouncer |
-| `06-demo-pg-2.yaml` | PostgreSQL StatefulSet + TLSRoute → PgBouncer |
-| `07-pgbouncer.yaml` | PgBouncer (TLS + PostgreSQL protocol + pooling) |
-
-## Troubleshooting
-
-| Problem | Cause |
-|---|---|
-| `server closed connection unexpectedly` | Missing `sslnegotiation=direct` |
-| `ALPN protocol negotiation extension` error | Missing `sslnegotiation=direct` |
-| `root certificate file does not exist` | Add `sslrootcert=system` |
-| `filter_chain_not_found` in Envoy logs | SNI not present (SSLRequest has no SNI) |
-| TLSRoute not accepted | Listener name mismatch |
-| PgBouncer `bouncer config error` | Check `auth_type` and database config |
-| Certificate not ready | Cloudflare API token wrong |
-
-## Notes
-
-- `sslnegotiation=direct` is a PostgreSQL 17+ feature. Older clients, JDBC drivers, ORMs, and tools that don't support it cannot connect through the Gateway.
-- For clients that don't support `sslnegotiation=direct`, expose PgBouncer directly via a LoadBalancer Service (bypass Gateway) or use a custom Envoy filter.
-- PgBouncer `auth_type = any` accepts any user/password. For production, use `auth_type = md5` with a proper userlist or `auth_query`.
-- PgBouncer `pool_mode = transaction` is recommended for most workloads. Use `session` mode if your application uses prepared statements or session-level settings.
+- PgBouncer is the public TLS endpoint, so wildcard certificate rotation must be reflected there.
+- PostgreSQL is configured with `ssl=off` in this demo. Add internal TLS later if required by your threat model.
+- PgBouncer uses `auth_type = md5` here for a simple demo path. For production, prefer stronger auth management and move backend credentials out of static inline config.
+- `pool_mode = transaction` is usually the safest default, but applications that rely on session state may need `session`.

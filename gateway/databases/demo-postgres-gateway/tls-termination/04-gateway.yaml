@@ -1,17 +1,14 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: postgres-gateway
+  name: postgres-std-gateway
   namespace: default
 spec:
   gatewayClassName: eg
   listeners:
-    - name: postgres-tls
-      hostname: "*.db.infrasnow.com"
+    - name: postgres
       port: 5432
-      protocol: TLS
-      tls:
-        mode: Passthrough
+      protocol: TCP
       allowedRoutes:
         namespaces:
           from: Selector
@@ -20,7 +17,6 @@ spec:
               dbaas.infrasnow.com/routes-allowed: "true"
 
 ---
-# Backend connection settings for PostgreSQL.
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
 metadata:
@@ -30,7 +26,7 @@ spec:
   targetRef:
     group: gateway.networking.k8s.io
     kind: Gateway
-    name: postgres-gateway
+    name: postgres-std-gateway
   timeout:
     tcp:
       connectTimeout: "10s"

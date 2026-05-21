@@ -1,0 +1,23 @@
+apiVersion: dbaas.infrasnow.com/v1alpha1
+kind: DatabaseExposure
+
+metadata:
+  name: tenant-a
+
+spec:
+  databaseRef:
+    apiGroup: postgres.openeverest.io
+    kind: PostgresCluster
+    name: tenant-a
+    namespace: tenant-a
+
+  externalAccess:
+    enabled: true
+
+  routing:
+    type: TCPRoute
+
+status:
+  port: 30027
+  hostname: db.infrasnow.com
+  phase: Ready

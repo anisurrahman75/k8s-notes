@@ -1,0 +1,37 @@
+# Gateway for port-based PostgreSQL routing.
+# Each tenant gets a dedicated TCP listener port.
+# Envoy acts as L4 TCP proxy - no TLS termination, no HTTP, no SNI.
+# Traffic is forwarded raw to backend PostgreSQL/PgBouncer services.
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: postgres-port-gateway
+  namespace: port-routing
+  annotations:
+    # Enable proxy protocol if load balancer supports it
+    # gateway.envoyproxy.io/use-proxy-protocol: "true"
+    description: "Port-based TCP gateway for PostgreSQL DBaaS"
+spec:
+  gatewayClassName: eg
+  listeners:
+    # Tenant A - dedicated port 30001
+    - name: tenant-a-postgres
+      port: 30001
+      protocol: TCP
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              dbaas.infrasnow.com/routes-allowed: "true"
+
+    # Tenant B - dedicated port 30002
+    - name: tenant-b-postgres
+      port: 30002
+      protocol: TCP
+      allowedRoutes:
+        namespaces:
+          from: Selector
+          selector:
+            matchLabels:
+              dbaas.infrasnow.com/routes-allowed: "true"

@@ -1,0 +1,45 @@
+# ResourceQuota for the port-routing namespace.
+# Limits total resource consumption for all tenant databases.
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: port-routing-quota
+  namespace: port-routing
+spec:
+  hard:
+    requests.cpu: "4"
+    requests.memory: 8Gi
+    limits.cpu: "8"
+    limits.memory: 16Gi
+    persistentvolumeclaims: "10"
+    pods: "20"
+    services: "10"
+
+---
+# LimitRange sets default resource limits for containers.
+# Ensures every container has resource constraints.
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: port-routing-limits
+  namespace: port-routing
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 100m
+        memory: 128Mi
+      max:
+        cpu: "2"
+        memory: 4Gi
+      min:
+        cpu: 50m
+        memory: 64Mi
+    - type: PersistentVolumeClaim
+      max:
+        storage: 50Gi
+      min:
+        storage: 1Gi

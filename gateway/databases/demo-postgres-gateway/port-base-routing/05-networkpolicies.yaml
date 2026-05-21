@@ -1,0 +1,145 @@
+# Default deny all ingress traffic in the namespace.
+# Only explicitly allowed traffic will reach pods.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: port-routing
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+
+---
+# Allow ingress from Envoy Gateway namespace to PgBouncer pods.
+# Envoy proxies forward TCP traffic from external clients.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-envoy-gateway-ingress
+  namespace: port-routing
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pgbouncer-tenant-a
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Allow ingress from Envoy Gateway namespace to Tenant B PgBouncer.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-envoy-gateway-ingress-tenant-b
+  namespace: port-routing
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: pgbouncer-tenant-b
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: envoy-gateway-system
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Allow PgBouncer Tenant A to reach only PostgreSQL Tenant A.
+# Prevents cross-tenant database access.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-pgbouncer-to-postgres-tenant-a
+  namespace: port-routing
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-tenant-a
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: pgbouncer-tenant-a
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Allow PgBouncer Tenant B to reach only PostgreSQL Tenant B.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-pgbouncer-to-postgres-tenant-b
+  namespace: port-routing
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-tenant-b
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: pgbouncer-tenant-b
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+# Deny cross-tenant PgBouncer access.
+# Tenant A PgBouncer cannot reach Tenant B PostgreSQL and vice versa.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-cross-tenant-pgbouncer-a-to-postgres-b
+  namespace: port-routing
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-tenant-b
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: pgbouncer-tenant-a
+      ports:
+        - protocol: TCP
+          port: 5432
+
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-cross-tenant-pgbouncer-b-to-postgres-a
+  namespace: port-routing
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-tenant-a
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: pgbouncer-tenant-b
+      ports:
+        - protocol: TCP
+          port: 5432

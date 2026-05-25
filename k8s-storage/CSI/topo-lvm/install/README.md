@@ -3,6 +3,7 @@
 lsblk # Pick the disk to use, e.g., /dev/sda
 pvcreate /dev/sda # Initialize the physical volume
 vgcreate myvg1 /dev/sda # Create a volume group named myvg1
+lvcreate --type thin-pool -L 50G -n pool0 myvg1
 ```
 
 ### Install VolumeSnapshot CRDs and the cluster-wide controller:

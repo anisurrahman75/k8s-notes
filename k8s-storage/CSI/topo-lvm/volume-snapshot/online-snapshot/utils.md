@@ -153,5 +153,40 @@ collection-22-14506254467221594773.wt  diagnostic.data                        in
 
 ```
 
+### Manually Delete LV
+
+```bash
+$ lsblk
+
+vdb                                                  253:16   0   99G  0 disk 
+├─myvg1-4a74a00e--3458--4fb6--9081--4305e0ef20a9     252:0    0   10G  0 lvm  
+├─myvg1-pool0_tmeta                                  252:1    0   52M  0 lvm  
+│ └─myvg1-pool0-tpool                                252:3    0   50G  0 lvm  
+│   ├─myvg1-pool0                                    252:4    0   50G  1 lvm  
+│   └─myvg1-f06029d6--17fb--4f83--8339--609744d02e46 252:6    0   10G  1 lvm  /var/lib/kubelet/online-snapshots/f06029d6-17fb-4f83-8339-609744d02e46
+└─myvg1-pool0_tdata                                  252:2    0   50G  0 lvm  
+  └─myvg1-pool0-tpool                                252:3    0   50G  0 lvm  
+    ├─myvg1-pool0                                    252:4    0   50G  1 lvm  
+    └─myvg1-f06029d6--17fb--4f83--8339--609744d02e46 252:6    0   10G  1 lvm  /var/lib/kubelet/online-snapshots/f06029d6-17fb-4f83-8339-609744d02e46
+
+$ findmnt /var/lib/kubelet/online-snapshots/f06029d6-17fb-4f83-8339-609744d02e46
+TARGET                                                                 SOURCE                                                     FSTYPE OPTIONS
+/var/lib/kubelet/online-snapshots/f06029d6-17fb-4f83-8339-609744d02e46 /dev/mapper/myvg1-f06029d6--17fb--4f83--8339--609744d02e46 xfs    ro,relatime,norecovery,attr2,inode64,logbufs=8,logbsize=64k,sunit=128,swidth=128,noquota
+
+
+$ umount /var/lib/kubelet/online-snapshots/f06029d6-17fb-4f83-8339-609744d02e46
+
+$ lvremove -y /dev/myvg1/f06029d6-17fb-4f83-8339-609744d02e46
+
+
+```
+
+
+## Debug 
+
+```bash
+$ dmesg | tail -100
+
+```
 ## Restic vs Kopia
 - https://cloudcasa.io/blog/comparing-restic-vs-kopia-for-kubernetes-data-movement/

@@ -1,0 +1,96 @@
+# URL Rewriting
+# Modify the request path before sending to backend
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: url-rewrite-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "rewrite.example.com"
+
+  rules:
+  # Rewrite /api/v1/* to /v1/*
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/v1
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /v1
+    backendRefs:
+    - name: app-v1
+      port: 80
+
+  # Strip /legacy prefix before sending to backend
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /legacy
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+    backendRefs:
+    - name: app-v2
+      port: 80
+
+---
+# Test:
+# Request to /api/v1/users gets rewritten to /v1/users
+# curl -H "Host: rewrite.example.com" http://$GATEWAY_HOST/api/v1/users
+#
+# Request to /legacy/data gets rewritten to /data
+# curl -H "Host: rewrite.example.com" http://$GATEWAY_HOST/legacy/data
+
+# Use Cases:
+# 1. API Versioning:
+#    - External: /api/v1/resource
+#    - Internal: /resource
+#
+# 2. Backward Compatibility:
+#    - Keep old URLs working while backend changes
+#
+# 3. Microservices:
+#    - External: /api/users/profile
+#    - Internal: /profile (backend only handles /profile)
+#
+# 4. Legacy Migration:
+#    - Gradually move from /old-api/* to /api/*
+
+---
+# Advanced: Hostname Rewrite
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: hostname-rewrite-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "external.example.com"
+
+  rules:
+  - filters:
+    - type: URLRewrite
+      urlRewrite:
+        hostname: internal.example.com
+    backendRefs:
+    - name: app-v1
+      port: 80
+
+# This rewrites the Host header before sending to backend
+# Useful when backend expects specific hostname
+

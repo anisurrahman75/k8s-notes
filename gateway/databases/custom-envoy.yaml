@@ -1,0 +1,16 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: custom-proxy-config
+  namespace: envoy-gateway-system
+spec:
+  logging:
+    level:
+      default: warn
+  mergeGateways: true
+  provider:
+    kubernetes:
+      envoyService:
+        externalTrafficPolicy: Local
+        type: LoadBalancer
+    type: Kubernetes

@@ -1,0 +1,298 @@
+# Cross-Namespace Routing
+# Route traffic to services in different namespaces
+
+---
+# Create additional namespaces for the demo
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-a
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-b
+
+---
+# Deploy service in team-a namespace
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-a
+  namespace: team-a
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: service-a
+  template:
+    metadata:
+      labels:
+        app: service-a
+    spec:
+      containers:
+      - name: app
+        image: hashicorp/http-echo
+        args:
+        - "-text=Hello from Team A"
+        - "-listen=:8080"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-a
+  namespace: team-a
+spec:
+  selector:
+    app: service-a
+  ports:
+  - port: 80
+    targetPort: 8080
+
+---
+# Deploy service in team-b namespace
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-b
+  namespace: team-b
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: service-b
+  template:
+    metadata:
+      labels:
+        app: service-b
+    spec:
+      containers:
+      - name: app
+        image: hashicorp/http-echo
+        args:
+        - "-text=Hello from Team B"
+        - "-listen=:8080"
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-b
+  namespace: team-b
+spec:
+  selector:
+    app: service-b
+  ports:
+  - port: 80
+    targetPort: 8080
+
+---
+# Gateway with cross-namespace support
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: shared-gateway
+  namespace: demo
+spec:
+  gatewayClassName: eg
+  listeners:
+  - name: http
+    protocol: HTTP
+    port: 80
+    # Allow Routes from all namespaces
+    allowedRoutes:
+      namespaces:
+        from: All
+
+---
+# Grant HTTPRoute in team-a to reference the Gateway in demo namespace
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-team-a-routes
+  namespace: demo
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: team-a
+  to:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+
+---
+# Grant HTTPRoute in team-b to reference the Gateway in demo namespace
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-team-b-routes
+  namespace: demo
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: team-b
+  to:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+
+---
+# HTTPRoute in team-a namespace
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: team-a-route
+  namespace: team-a
+spec:
+  parentRefs:
+  - name: shared-gateway
+    namespace: demo  # Reference Gateway in different namespace
+
+  hostnames:
+  - "team-a.example.com"
+
+  rules:
+  - backendRefs:
+    - name: service-a
+      port: 80
+      # namespace: team-a (implicit, same namespace as HTTPRoute)
+
+---
+# HTTPRoute in team-b namespace
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: team-b-route
+  namespace: team-b
+spec:
+  parentRefs:
+  - name: shared-gateway
+    namespace: demo  # Reference Gateway in different namespace
+
+  hostnames:
+  - "team-b.example.com"
+
+  rules:
+  - backendRefs:
+    - name: service-b
+      port: 80
+
+---
+# HTTPRoute that references services in different namespaces
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cross-namespace-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: shared-gateway
+
+  hostnames:
+  - "multi-team.example.com"
+
+  rules:
+  # Route /team-a to service in team-a namespace
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /team-a
+    backendRefs:
+    - name: service-a
+      namespace: team-a
+      port: 80
+
+  # Route /team-b to service in team-b namespace
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /team-b
+    backendRefs:
+    - name: service-b
+      namespace: team-b
+      port: 80
+
+---
+# ReferenceGrant to allow demo namespace to reference team-a services
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-demo-to-team-a
+  namespace: team-a
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: demo
+  to:
+  - group: ""
+    kind: Service
+
+---
+# ReferenceGrant to allow demo namespace to reference team-b services
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: allow-demo-to-team-b
+  namespace: team-b
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: demo
+  to:
+  - group: ""
+    kind: Service
+
+---
+# Test:
+# curl -H "Host: team-a.example.com" http://$GATEWAY_HOST/
+# Response: "Hello from Team A"
+#
+# curl -H "Host: team-b.example.com" http://$GATEWAY_HOST/
+# Response: "Hello from Team B"
+#
+# curl -H "Host: multi-team.example.com" http://$GATEWAY_HOST/team-a
+# Response: "Hello from Team A"
+#
+# curl -H "Host: multi-team.example.com" http://$GATEWAY_HOST/team-b
+# Response: "Hello from Team B"
+
+---
+# Use Cases:
+
+# 1. Multi-tenancy:
+# - Shared Gateway for multiple teams
+# - Each team manages their own Routes
+# - Centralized infrastructure management
+
+# 2. Service Mesh:
+# - Services across namespaces communicate through Gateway
+# - Centralized policy enforcement
+
+# 3. Environment Separation:
+# - Gateway in "infra" namespace
+# - Services in "dev", "staging", "prod" namespaces
+
+# 4. Platform Teams:
+# - Platform team manages Gateway
+# - Application teams manage their Routes
+
+# Key Concepts:
+
+# 1. ReferenceGrant:
+# - Required for cross-namespace references
+# - Security mechanism to prevent unauthorized access
+# - Must be created in the namespace being referenced
+
+# 2. Gateway allowedRoutes:
+# - Control which namespaces can attach Routes
+# - Options: Same, All, Selector
+
+# 3. Namespace in backendRefs:
+# - Explicitly specify service namespace
+# - Requires ReferenceGrant
+

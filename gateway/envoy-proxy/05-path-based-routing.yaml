@@ -1,0 +1,60 @@
+# Path-Based Routing
+# Route traffic to different services based on URL path
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: path-based-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "example.com"
+
+  rules:
+  # Route /foo/* to foo-app service
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /foo
+    backendRefs:
+    - name: foo-app
+      port: 80
+
+  # Route /bar/* to bar-app service
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /bar
+    backendRefs:
+    - name: bar-app
+      port: 80
+
+  # Default route for / goes to app-v1
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: app-v1
+      port: 80
+
+---
+# Test:
+# curl -H "Host: example.com" http://$GATEWAY_HOST/foo
+# Response: "Foo Service"
+#
+# curl -H "Host: example.com" http://$GATEWAY_HOST/bar
+# Response: "Bar Service"
+#
+# curl -H "Host: example.com" http://$GATEWAY_HOST/
+# Response: "Hello from App v1"
+
+# Use Case:
+# - Microservices architecture: /users -> user-service, /orders -> order-service
+# - Different teams managing different paths
+# - Legacy vs new API versions on different paths
+

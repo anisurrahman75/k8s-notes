@@ -1,0 +1,39 @@
+# TCPRoute for Tenant A.
+# Routes TCP traffic from Gateway listener port 30001 to PgBouncer service.
+# No hostname matching - pure port-based routing.
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: tenant-a-postgres-route
+  namespace: port-routing
+  labels:
+    app.kubernetes.io/name: tenant-a
+    dbaas.infrasnow.com/tenant: tenant-a
+spec:
+  parentRefs:
+    - name: postgres-port-gateway
+      sectionName: tenant-a-postgres
+  rules:
+    - backendRefs:
+        - name: pgbouncer-tenant-a
+          port: 5432
+
+---
+# TCPRoute for Tenant B.
+# Routes TCP traffic from Gateway listener port 30002 to PgBouncer service.
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: tenant-b-postgres-route
+  namespace: port-routing
+  labels:
+    app.kubernetes.io/name: tenant-b
+    dbaas.infrasnow.com/tenant: tenant-b
+spec:
+  parentRefs:
+    - name: postgres-port-gateway
+      sectionName: tenant-b-postgres
+  rules:
+    - backendRefs:
+        - name: pgbouncer-tenant-b
+          port: 5432

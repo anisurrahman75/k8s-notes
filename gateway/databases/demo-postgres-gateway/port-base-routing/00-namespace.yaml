@@ -1,0 +1,9 @@
+# Namespace for port-based PostgreSQL routing.
+# Label allows Gateway to select routes from this namespace.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: port-routing
+  labels:
+    dbaas.infrasnow.com/routes-allowed: "true"
+    dbaas.infrasnow.com/tenant-isolation: "port-based"

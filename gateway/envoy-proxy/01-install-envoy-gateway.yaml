@@ -1,0 +1,22 @@
+# Install Envoy Gateway
+# This will deploy the Envoy Gateway controller in the envoy-gateway-system namespace
+
+# You can use the official installation instead:
+# kubectl apply -f https://github.com/envoyproxy/gateway/releases/download/v0.6.0/install.yaml
+
+# Or use Helm:
+# helm install eg oci://docker.io/envoyproxy/gateway-helm --version v0.6.0 -n envoy-gateway-system --create-namespace
+
+# For this lab, use the quickstart installation:
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: envoy-gateway-system
+---
+# Note: The full installation YAML is quite large (1000+ lines)
+# It's recommended to use the official installation command:
+# kubectl apply -f https://github.com/envoyproxy/gateway/releases/download/latest/install.yaml
+
+# After installation, a GatewayClass named "eg" will be automatically created
+

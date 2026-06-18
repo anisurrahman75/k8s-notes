@@ -1,0 +1,241 @@
+# PostgreSQL auth credentials for Tenant A.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pg-tenant-a-auth
+  namespace: port-routing
+type: Opaque
+stringData:
+  POSTGRES_USER: tenant-a
+  POSTGRES_PASSWORD: change-me-tenant-a
+  POSTGRES_DB: appdb
+
+---
+# Headless Service for Tenant A StatefulSet DNS.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-tenant-a-headless
+  namespace: port-routing
+  labels:
+    app.kubernetes.io/name: postgres-tenant-a
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: postgres-tenant-a
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+
+---
+# ClusterIP Service for Tenant A PostgreSQL.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-tenant-a
+  namespace: port-routing
+  labels:
+    app.kubernetes.io/name: postgres-tenant-a
+    dbaas.infrasnow.com/tenant: tenant-a
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: postgres-tenant-a
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+
+---
+# PostgreSQL StatefulSet for Tenant A.
+# SSL disabled for demo - enable in production with proper certs.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-tenant-a
+  namespace: port-routing
+  labels:
+    app.kubernetes.io/name: postgres-tenant-a
+    dbaas.infrasnow.com/tenant: tenant-a
+spec:
+  serviceName: postgres-tenant-a-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-tenant-a
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres-tenant-a
+        dbaas.infrasnow.com/tenant: tenant-a
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:17
+          imagePullPolicy: IfNotPresent
+          args:
+            - -c
+            - ssl=off
+          ports:
+            - name: postgres
+              containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: pg-tenant-a-auth
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -ec
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: postgres
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+
+---
+# PostgreSQL auth credentials for Tenant B.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pg-tenant-b-auth
+  namespace: port-routing
+type: Opaque
+stringData:
+  POSTGRES_USER: tenant-b
+  POSTGRES_PASSWORD: change-me-tenant-b
+  POSTGRES_DB: appdb
+
+---
+# Headless Service for Tenant B StatefulSet DNS.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-tenant-b-headless
+  namespace: port-routing
+  labels:
+    app.kubernetes.io/name: postgres-tenant-b
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: postgres-tenant-b
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+
+---
+# ClusterIP Service for Tenant B PostgreSQL.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-tenant-b
+  namespace: port-routing
+  labels:
+    app.kubernetes.io/name: postgres-tenant-b
+    dbaas.infrasnow.com/tenant: tenant-b
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: postgres-tenant-b
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+
+---
+# PostgreSQL StatefulSet for Tenant B.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-tenant-b
+  namespace: port-routing
+  labels:
+    app.kubernetes.io/name: postgres-tenant-b
+    dbaas.infrasnow.com/tenant: tenant-b
+spec:
+  serviceName: postgres-tenant-b-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres-tenant-b
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: postgres-tenant-b
+        dbaas.infrasnow.com/tenant: tenant-b
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:17
+          imagePullPolicy: IfNotPresent
+          args:
+            - -c
+            - ssl=off
+          ports:
+            - name: postgres
+              containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: pg-tenant-b-auth
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -ec
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: postgres
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

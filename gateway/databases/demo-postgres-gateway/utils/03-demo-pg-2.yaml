@@ -1,0 +1,156 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: demo-postgres-auth-2
+  namespace: demo-db
+type: Opaque
+stringData:
+  POSTGRES_USER: demo
+  POSTGRES_PASSWORD: demo-password
+  POSTGRES_DB: appdb
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-postgres-headless-2
+  namespace: demo-db
+  labels:
+    app.kubernetes.io/name: demo-postgres-2
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: demo-postgres-2
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-postgres-2
+  namespace: demo-db
+  labels:
+    app.kubernetes.io/name: demo-postgres-2
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: demo-postgres-2
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: demo-postgres-2
+  namespace: demo-db
+  labels:
+    app.kubernetes.io/name: demo-postgres-2
+spec:
+  serviceName: demo-postgres-headless-2
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: demo-postgres-2
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: demo-postgres-2
+    spec:
+      securityContext:
+        fsGroup: 999
+      initContainers:
+        - name: generate-demo-tls
+          image: postgres:17
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -ec
+            - |
+              openssl req -x509 -newkey rsa:2048 -nodes \
+                -keyout /tls/tls.key \
+                -out /tls/tls.crt \
+                -days 7 \
+                -subj "/CN=demo-pg-2.db.infrasnow.com" \
+                -addext "subjectAltName=DNS:demo-pg-2.db.infrasnow.com"
+              chown 999:999 /tls/tls.key /tls/tls.crt
+              chmod 600 /tls/tls.key
+          volumeMounts:
+            - name: postgres-tls
+              mountPath: /tls
+      containers:
+        - name: postgres
+          image: postgres:17
+          imagePullPolicy: IfNotPresent
+          args:
+            - -c
+            - ssl=on
+            - -c
+            - ssl_cert_file=/etc/postgres-tls/tls.crt
+            - -c
+            - ssl_key_file=/etc/postgres-tls/tls.key
+          ports:
+            - name: postgres
+              containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: demo-postgres-auth-2
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+            - name: postgres-tls
+              mountPath: /etc/postgres-tls
+              readOnly: true
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -ec
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: postgres
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: postgres-tls
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: gateway.networking.k8s.io/v1alpha3
+kind: TLSRoute
+metadata:
+  name: demo-postgres-2
+  namespace: demo-db
+spec:
+  parentRefs:
+    - name: postgres-gateway
+      namespace: default
+      sectionName: postgres-tls
+  hostnames:
+    - demo-pg-2.db.infrasnow.com
+  rules:
+    - backendRefs:
+        - name: demo-postgres-2
+          port: 5432

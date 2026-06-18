@@ -1,0 +1,159 @@
+# Timeout and Retry Configuration
+# Configure request timeouts and retry policies
+
+---
+# Note: Timeout and Retry are part of Gateway API experimental features
+# Make sure you have the experimental CRDs installed:
+# kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.0.0/experimental-install.yaml
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: timeout-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "timeout.example.com"
+
+  rules:
+  - backendRefs:
+    - name: app-v1
+      port: 80
+    timeouts:
+      # Maximum time for the entire request/response cycle
+      request: 30s
+
+      # Maximum time to get a response from the backend
+      backendRequest: 15s
+
+---
+# Retry Policy using BackendTLSPolicy (Envoy Gateway specific)
+# For retries, you may need to use Envoy Gateway's custom resources
+# or configure via EnvoyProxy resource
+
+---
+# Example: Using Envoy Gateway's ClientTrafficPolicy for advanced features
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: ClientTrafficPolicy
+metadata:
+  name: timeout-retry-policy
+  namespace: demo
+spec:
+  # Target the Gateway
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: my-gateway
+
+  # Timeout configuration
+  timeout:
+    http:
+      # Overall request timeout
+      requestTimeout: 30s
+
+  # Connection settings
+  connection:
+    bufferLimit: 32Ki
+
+---
+# Example: Backend Retry Configuration
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+  name: retry-policy
+  namespace: demo
+spec:
+  # Target a specific service
+  targetRef:
+    group: ""
+    kind: Service
+    name: app-v1
+
+  # Retry configuration
+  retry:
+    numRetries: 3
+    retryOn:
+      httpStatusCodes:
+      - 500  # Internal Server Error
+      - 502  # Bad Gateway
+      - 503  # Service Unavailable
+      - 504  # Gateway Timeout
+    perRetryTimeout: 5s
+    backoff:
+      baseInterval: 1s
+      maxInterval: 10s
+
+---
+# Use Cases:
+
+# 1. Timeout Configuration:
+# - Prevent requests from hanging indefinitely
+# - Fail fast for slow backends
+# - Different timeouts for different routes
+
+# 2. Retry Policies:
+# - Handle transient failures automatically
+# - Improve reliability without client changes
+# - Smart retries (only on safe methods, specific errors)
+
+# 3. Circuit Breaking:
+# - Stop sending requests to failing backends
+# - Give backends time to recover
+# - Prevent cascade failures
+
+---
+# Example: Different timeouts for different endpoints
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: variable-timeout-route
+  namespace: demo
+spec:
+  parentRefs:
+  - name: my-gateway
+
+  hostnames:
+  - "api.example.com"
+
+  rules:
+  # Fast endpoint - short timeout
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /health
+    backendRefs:
+    - name: app-v1
+      port: 80
+    timeouts:
+      request: 5s
+
+  # Slow processing endpoint - longer timeout
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /batch-process
+    backendRefs:
+    - name: app-v1
+      port: 80
+    timeouts:
+      request: 120s
+
+  # Default timeout for other endpoints
+  - backendRefs:
+    - name: app-v1
+      port: 80
+    timeouts:
+      request: 30s
+
+---
+# Notes:
+# 1. Always set reasonable timeouts to prevent resource exhaustion
+# 2. Retry only idempotent operations (GET, PUT, DELETE)
+# 3. Be careful with retries on POST (may duplicate actions)
+# 4. Use exponential backoff to avoid thundering herd
+# 5. Monitor retry rates to detect backend issues
+

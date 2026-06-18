@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: demo-postgres-auth-2
+  namespace: demo-db-standard
+type: Opaque
+stringData:
+  POSTGRES_USER: demo
+  POSTGRES_PASSWORD: demo-password
+  POSTGRES_DB: appdb
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-postgres-headless-2
+  namespace: demo-db-standard
+  labels:
+    app.kubernetes.io/name: demo-postgres-2
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: demo-postgres-2
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-postgres-2
+  namespace: demo-db-standard
+  labels:
+    app.kubernetes.io/name: demo-postgres-2
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: demo-postgres-2
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: demo-postgres-2
+  namespace: demo-db-standard
+  labels:
+    app.kubernetes.io/name: demo-postgres-2
+spec:
+  serviceName: demo-postgres-headless-2
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: demo-postgres-2
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: demo-postgres-2
+    spec:
+      securityContext:
+        fsGroup: 999
+      containers:
+        - name: postgres
+          image: postgres:17
+          imagePullPolicy: IfNotPresent
+          args:
+            - -c
+            - ssl=off
+          ports:
+            - name: postgres
+              containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: demo-postgres-auth-2
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -ec
+                - pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: postgres
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi

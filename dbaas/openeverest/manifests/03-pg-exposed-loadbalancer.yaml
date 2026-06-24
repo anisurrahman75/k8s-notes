@@ -1,0 +1,31 @@
+# Externally reachable PostgreSQL — exposes pgbouncer via a LoadBalancer Service.
+# On k3s the built-in servicelb (klipper) assigns the node IP. Optionally restrict
+# access with ipSourceRanges. Use "internal" (ClusterIP) for in-cluster-only access.
+apiVersion: everest.percona.com/v1alpha1
+kind: DatabaseCluster
+metadata:
+  name: pg-exposed
+  namespace: everest
+spec:
+  engine:
+    type: postgresql
+    version: "16.11"
+    replicas: 1
+    storage:
+      size: 2Gi
+    resources:
+      cpu: "500m"
+      memory: 1G
+  proxy:
+    type: pgbouncer
+    replicas: 1
+    expose:
+      type: LoadBalancer        # LoadBalancer (external) or "internal" (ClusterIP only)
+      ipSourceRanges:           # optional allow-list; remove to allow all
+        - 10.0.0.0/8
+        - 192.168.0.0/16
+    resources:
+      cpu: "200m"
+      memory: 128M
+  backup:
+    enabled: false

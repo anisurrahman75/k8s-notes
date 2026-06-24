@@ -1,0 +1,39 @@
+# PostgreSQL with custom engine tuning + a pod scheduling (anti-affinity) policy.
+# `engine.config` is injected into postgresql.conf. `podSchedulingPolicyName` references
+# a PodSchedulingPolicy CR (the chart ships a default "everest-default-postgresql").
+apiVersion: everest.percona.com/v1alpha1
+kind: DatabaseCluster
+metadata:
+  name: pg-tuned
+  namespace: everest
+spec:
+  engine:
+    type: postgresql
+    version: "16.11"
+    replicas: 3
+    storage:
+      size: 5Gi
+    resources:
+      cpu: "1"
+      memory: 2G
+    config: |
+      max_connections = 200
+      shared_buffers = '512MB'
+      work_mem = '16MB'
+      maintenance_work_mem = '128MB'
+      log_min_duration_statement = 500
+  proxy:
+    type: pgbouncer
+    replicas: 2
+    config: |
+      [pgbouncer]
+      pool_mode = transaction
+      max_client_conn = 1000
+      default_pool_size = 50
+    resources:
+      cpu: "300m"
+      memory: 256M
+  # Spread instances across nodes using the chart's default postgres policy.
+  podSchedulingPolicyName: everest-default-postgresql
+  backup:
+    enabled: false

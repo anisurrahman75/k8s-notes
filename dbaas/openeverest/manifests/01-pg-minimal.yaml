@@ -1,0 +1,26 @@
+# Minimal single-node PostgreSQL — smallest footprint, good for dev / resource-limited clusters.
+# 1 Postgres instance + 1 pgbouncer, 1Gi storage on the default StorageClass.
+apiVersion: everest.percona.com/v1alpha1
+kind: DatabaseCluster
+metadata:
+  name: pg-minimal
+  namespace: everest            # the DB namespace created by the chart (dbNamespace.namespaceOverride)
+spec:
+  engine:
+    type: postgresql
+    version: "16.11"            # one of the operator's recommended versions
+    replicas: 1                 # single node = no HA
+    storage:
+      size: 1Gi
+      # class: local-path       # omit to use the cluster default StorageClass
+    resources:
+      cpu: "500m"
+      memory: 1G
+  proxy:
+    type: pgbouncer
+    replicas: 1
+    resources:
+      cpu: "200m"
+      memory: 128M
+  backup:
+    enabled: false

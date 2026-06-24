@@ -1,0 +1,25 @@
+# High-availability PostgreSQL — 3 instances (1 primary + 2 replicas, streaming replication)
+# fronted by 2 pgbouncer replicas. Needs a multi-node cluster with enough CPU/memory.
+apiVersion: everest.percona.com/v1alpha1
+kind: DatabaseCluster
+metadata:
+  name: pg-ha
+  namespace: everest
+spec:
+  engine:
+    type: postgresql
+    version: "16.11"
+    replicas: 3                 # odd number recommended; 1 primary + 2 hot-standby
+    storage:
+      size: 10Gi
+    resources:
+      cpu: "1"
+      memory: 2G
+  proxy:
+    type: pgbouncer
+    replicas: 2                 # redundant connection poolers
+    resources:
+      cpu: "500m"
+      memory: 256M
+  backup:
+    enabled: false

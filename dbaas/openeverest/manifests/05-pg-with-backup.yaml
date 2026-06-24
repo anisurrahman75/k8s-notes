@@ -1,0 +1,52 @@
+# PostgreSQL with scheduled backups + Point-In-Time-Recovery (PITR).
+#
+# PREREQUISITE: a BackupStorage must exist first (object storage, e.g. S3/GCS/MinIO).
+# Create it in the Everest UI (Settings -> Backup Storages) or via the CR below, then
+# reference its name in spec.backup.schedules[].backupStorageName and spec.backup.pitr.
+#
+# --- BackupStorage example (edit and apply separately) -----------------------
+# apiVersion: everest.percona.com/v1alpha1
+# kind: BackupStorage
+# metadata:
+#   name: minio-backups
+#   namespace: everest
+# spec:
+#   type: s3
+#   bucket: everest-backups
+#   region: us-east-1
+#   endpointURL: https://minio.example.com
+#   credentialsSecretName: minio-backup-creds   # Secret with AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
+# -----------------------------------------------------------------------------
+apiVersion: everest.percona.com/v1alpha1
+kind: DatabaseCluster
+metadata:
+  name: pg-backed-up
+  namespace: everest
+spec:
+  engine:
+    type: postgresql
+    version: "16.11"
+    replicas: 3
+    storage:
+      size: 10Gi
+    resources:
+      cpu: "1"
+      memory: 2G
+  proxy:
+    type: pgbouncer
+    replicas: 2
+    resources:
+      cpu: "300m"
+      memory: 256M
+  backup:
+    enabled: true
+    schedules:
+      - name: daily-full
+        enabled: true
+        schedule: "0 2 * * *"          # every day at 02:00 (cron)
+        retentionCopies: 7
+        backupStorageName: minio-backups
+    pitr:
+      enabled: true
+      backupStorageName: minio-backups
+      uploadIntervalSec: 60

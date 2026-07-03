@@ -1,0 +1,15 @@
+# Per-cluster overrides for the FIRST cluster. Only needed if you build both
+# clusters in parallel with TF_WORKSPACE (see README > "Creating both clusters at
+# the same time"). For normal single-cluster use, terraform.tfvars already holds
+# these values.
+#
+#   TF_WORKSPACE=cluster-a terraform apply -var-file=cluster-a.tfvars
+
+name_prefix  = "anisur"
+cluster_name = "kubestash-vs"
+
+subnet_cidr   = "10.10.0.0/20"
+pods_cidr     = "10.20.0.0/16"
+services_cidr = "10.30.0.0/20"
+
+# Shared values (project_id, region, node sizes) come from terraform.tfvars.

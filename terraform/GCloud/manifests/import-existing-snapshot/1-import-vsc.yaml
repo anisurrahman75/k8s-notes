@@ -1,0 +1,21 @@
+# Step 1 — statically import the pre-existing GCE PD snapshot into a NEW cluster.
+# This is cluster-local metadata that points at the project-global GCE snapshot.
+# The snapshotHandle is copied verbatim from the OLD cluster's
+# VolumeSnapshotContent .status.snapshotHandle.
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotContent
+metadata:
+  name: imported-snapshot-content
+spec:
+  # Retain: deleting this object (or the whole cluster) must NOT delete the
+  # underlying GCE snapshot.
+  deletionPolicy: Retain
+  driver: pd.csi.storage.gke.io
+  source:
+    snapshotHandle: projects/appscode-testing/global/snapshots/snapshot-cccff36b-eb60-4639-b399-3f42e2eaf090
+  # Pre-bind to the VolumeSnapshot created in step 2.
+  volumeSnapshotRef:
+    apiVersion: snapshot.storage.k8s.io/v1
+    kind: VolumeSnapshot
+    name: imported-snapshot
+    namespace: demo

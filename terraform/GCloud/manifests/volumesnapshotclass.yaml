@@ -1,0 +1,10 @@
+# Default VolumeSnapshotClass backed by the GKE PD CSI driver.
+# Applied via kubectl after the cluster exists (see README / cluster-creation.md).
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: csi-gce-pd-snapshot-class
+  annotations:
+    snapshot.storage.kubernetes.io/is-default-class: "true"
+driver: pd.csi.storage.gke.io
+deletionPolicy: Retain

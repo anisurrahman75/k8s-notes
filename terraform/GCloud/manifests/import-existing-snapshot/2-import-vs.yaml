@@ -1,0 +1,12 @@
+# Step 2 — a VolumeSnapshot that statically binds to the imported content above
+# (note: source is volumeSnapshotContentName, NOT persistentVolumeClaimName).
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: imported-snapshot
+  namespace: demo
+spec:
+  # Must match the class name that exists in cluster B.
+  volumeSnapshotClassName: csi-gce-pd-snapshot-class
+  source:
+    volumeSnapshotContentName: imported-snapshot-content

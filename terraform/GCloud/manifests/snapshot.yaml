@@ -1,0 +1,9 @@
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: source-pvc-snapshot
+  namespace: demo
+spec:
+  volumeSnapshotClassName: csi-gce-pd-snapshot-class
+  source:
+    persistentVolumeClaimName: source-pvc

@@ -1,0 +1,18 @@
+# Step 3 — provision a new PVC in cluster B from the imported snapshot.
+# restoreSize must be >= the snapshot's restoreSize (5Gi here).
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: restored-pvc
+  namespace: demo
+spec:
+  storageClassName: csi-gce-pd-ssd
+  dataSource:
+    name: imported-snapshot
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi

@@ -1,0 +1,22 @@
+# Per-cluster overrides for a SECOND cluster, applied in its own workspace:
+#
+#   terraform workspace new cluster-b
+#   terraform apply -var-file=cluster-b.tfvars
+#
+# name_prefix MUST differ from cluster A — it names the VPC/subnet/router/NAT/
+# node-pool, and those names would collide in GCP otherwise. cluster_name must
+# differ too. CIDRs can repeat (separate VPC) but are kept distinct here for
+# clarity and future peering.
+
+name_prefix  = "kubestash-gke-b"
+cluster_name = "kubestash-vs2"
+
+# Separate VPC, so distinct ranges are optional but tidy.
+subnet_cidr   = "10.11.0.0/20"
+pods_cidr     = "10.21.0.0/16"
+services_cidr = "10.31.0.0/20"
+
+# Shared values (project_id, region, node sizes) come from terraform.tfvars.
+# Override here only if cluster B should differ, e.g.:
+# region         = "us-central1"
+# node_locations = ["us-central1-b"]

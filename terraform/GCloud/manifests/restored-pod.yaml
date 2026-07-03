@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: restored-pod
+  namespace: demo
+spec:
+  containers:
+    - name: reader
+      image: busybox:1.36
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          echo "--- contents of /data/hello.txt from the restored volume ---";
+          cat /data/hello.txt;
+          sleep 3600
+      volumeMounts:
+        - name: data
+          mountPath: /data
+  volumes:
+    - name: data
+      persistentVolumeClaim:
+        claimName: restored-pvc

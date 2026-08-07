@@ -1,0 +1,40 @@
+[Unit]
+Description=Bounded CPU and memory demo
+After=local-fs.target
+
+[Service]
+Type=exec
+ExecStart=/usr/local/libexec/resource-burner -cpu-workers=2 -memory-mib=128
+Slice=demo-workload.slice
+DynamicUser=yes
+Restart=on-failure
+RestartSec=2s
+
+# Resource control (cgroup v2)
+CPUAccounting=yes
+CPUQuota=50%
+CPUWeight=50
+MemoryAccounting=yes
+MemoryHigh=128M
+MemoryMax=160M
+MemorySwapMax=0
+TasksMax=32
+
+# Filesystem, privilege, device, and kernel hardening
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectKernelLogs=yes
+RestrictAddressFamilies=AF_UNIX
+CapabilityBoundingSet=
+LockPersonality=yes
+RestrictRealtime=yes
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

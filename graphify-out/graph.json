@@ -1,0 +1,580 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "systemd_resource_control_isolation_learning_flow",
+        "label": "Resource Control and Isolation Learning Flow",
+        "nodes": [
+          "systemd_prompt_systemd_run",
+          "systemd_prompt_go_resource_burner",
+          "systemd_prompt_cpu_and_resource_limits",
+          "systemd_prompt_cgroups",
+          "systemd_prompt_bwrap"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "linux/systemd/prompt.md"
+      },
+      {
+        "id": "systemd_learning_content_structure",
+        "label": "systemd Learning Content Structure",
+        "nodes": [
+          "systemd_prompt_concept_directory",
+          "systemd_prompt_demo_directory",
+          "systemd_prompt_quiz_section"
+        ],
+        "relation": "form",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "linux/systemd/prompt.md"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "label": "systemd Overview",
+      "file_type": "document",
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 1-25",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_readme_systemd_overview",
+      "community": 2,
+      "norm_label": "systemd overview"
+    },
+    {
+      "label": "systemd",
+      "file_type": "concept",
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 1-4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_readme_systemd",
+      "community": 2,
+      "norm_label": "systemd"
+    },
+    {
+      "label": "Init System",
+      "file_type": "concept",
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 2-4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_readme_init_system",
+      "community": 2,
+      "norm_label": "init system"
+    },
+    {
+      "label": "PID 1",
+      "file_type": "concept",
+      "source_file": "linux/systemd/README.md",
+      "source_location": "line 3",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_readme_pid_1",
+      "community": 2,
+      "norm_label": "pid 1"
+    },
+    {
+      "label": "Process Management",
+      "file_type": "concept",
+      "source_file": "linux/systemd/README.md",
+      "source_location": "line 4",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_readme_process_management",
+      "community": 2,
+      "norm_label": "process management"
+    },
+    {
+      "label": "systemctl",
+      "file_type": "concept",
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 8-21",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_readme_systemctl",
+      "community": 3,
+      "norm_label": "systemctl"
+    },
+    {
+      "label": "systemd Units",
+      "file_type": "concept",
+      "source_file": "linux/systemd/README.md",
+      "source_location": "line 23",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_readme_systemd_units",
+      "community": 3,
+      "norm_label": "systemd units"
+    },
+    {
+      "label": "Service Lifecycle Management",
+      "file_type": "concept",
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 9-14",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_readme_service_lifecycle",
+      "community": 3,
+      "norm_label": "service lifecycle management"
+    },
+    {
+      "label": "Boot Service Enablement",
+      "file_type": "concept",
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 16-20",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_readme_boot_service_enablement",
+      "community": 3,
+      "norm_label": "boot service enablement"
+    },
+    {
+      "label": "systemd Learning Plan",
+      "file_type": "document",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "lines 1-24",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_systemd_learning_plan",
+      "community": 1,
+      "norm_label": "systemd learning plan"
+    },
+    {
+      "label": "systemd",
+      "file_type": "concept",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "lines 1-7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_systemd",
+      "community": 1,
+      "norm_label": "systemd"
+    },
+    {
+      "label": "systemd-run",
+      "file_type": "concept",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "lines 1-7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_systemd_run",
+      "community": 0,
+      "norm_label": "systemd-run"
+    },
+    {
+      "label": "Go CPU and Memory Burner Demo",
+      "file_type": "concept",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "lines 6-7",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_go_resource_burner",
+      "community": 0,
+      "norm_label": "go cpu and memory burner demo"
+    },
+    {
+      "label": "CPU and Resource Limits",
+      "file_type": "concept",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 8",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_cpu_and_resource_limits",
+      "community": 0,
+      "norm_label": "cpu and resource limits"
+    },
+    {
+      "label": "Control Groups (cgroups)",
+      "file_type": "concept",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 8",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_cgroups",
+      "community": 0,
+      "norm_label": "control groups (cgroups)"
+    },
+    {
+      "label": "Bubblewrap (bwrap)",
+      "file_type": "concept",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "lines 9-10",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_bwrap",
+      "community": 0,
+      "norm_label": "bubblewrap (bwrap)"
+    },
+    {
+      "label": "Complete Filesystem Isolation",
+      "file_type": "rationale",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 9",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_filesystem_isolation",
+      "community": 0,
+      "norm_label": "complete filesystem isolation"
+    },
+    {
+      "label": "Concept Notes Directory",
+      "file_type": "concept",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 15",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_concept_directory",
+      "community": 1,
+      "norm_label": "concept notes directory"
+    },
+    {
+      "label": "Demo Project Directory",
+      "file_type": "concept",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 16",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_demo_directory",
+      "community": 1,
+      "norm_label": "demo project directory"
+    },
+    {
+      "label": "Quiz Section",
+      "file_type": "concept",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 17",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_quiz_section",
+      "community": 1,
+      "norm_label": "quiz section"
+    },
+    {
+      "label": "Short Human-Style Notes",
+      "file_type": "rationale",
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "lines 18-20",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_prompt_short_human_notes",
+      "community": 1,
+      "norm_label": "short human-style notes"
+    },
+    {
+      "label": "systemd Resource List",
+      "file_type": "document",
+      "source_file": "linux/systemd/resources.md",
+      "source_location": "line 1",
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_resources_resource_list",
+      "community": 4,
+      "norm_label": "systemd resource list"
+    },
+    {
+      "label": "YouTube Resource Kzpm-rGAXos",
+      "file_type": "document",
+      "source_file": "linux/systemd/resources.md",
+      "source_location": "line 1",
+      "source_url": "https://www.youtube.com/watch?v=Kzpm-rGAXos",
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "systemd_resources_youtube_kzpm_rgaxos",
+      "community": 4,
+      "norm_label": "youtube resource kzpm-rgaxos"
+    }
+  ],
+  "links": [
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 6-21",
+      "weight": 1.0,
+      "source": "systemd_readme_systemd_overview",
+      "target": "systemd_readme_systemctl"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 1-4",
+      "weight": 1.0,
+      "source": "systemd_readme_systemd_overview",
+      "target": "systemd_readme_systemd"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/README.md",
+      "source_location": "line 2",
+      "weight": 1.0,
+      "source": "systemd_readme_systemd",
+      "target": "systemd_readme_init_system"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/README.md",
+      "source_location": "line 4",
+      "weight": 1.0,
+      "source": "systemd_readme_systemd",
+      "target": "systemd_readme_process_management"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/README.md",
+      "source_location": "line 3",
+      "weight": 1.0,
+      "source": "systemd_readme_init_system",
+      "target": "systemd_readme_pid_1"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 16-20",
+      "weight": 1.0,
+      "source": "systemd_readme_systemctl",
+      "target": "systemd_readme_boot_service_enablement"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 9-14",
+      "weight": 1.0,
+      "source": "systemd_readme_systemctl",
+      "target": "systemd_readme_service_lifecycle"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "linux/systemd/README.md",
+      "source_location": "lines 8-23",
+      "weight": 1.0,
+      "source": "systemd_readme_systemctl",
+      "target": "systemd_readme_systemd_units"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "lines 18-20",
+      "weight": 1.0,
+      "source": "systemd_prompt_short_human_notes",
+      "target": "systemd_prompt_systemd_learning_plan"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 15",
+      "weight": 1.0,
+      "source": "systemd_prompt_systemd_learning_plan",
+      "target": "systemd_prompt_concept_directory"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 16",
+      "weight": 1.0,
+      "source": "systemd_prompt_systemd_learning_plan",
+      "target": "systemd_prompt_demo_directory"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 6",
+      "weight": 1.0,
+      "source": "systemd_prompt_systemd_learning_plan",
+      "target": "systemd_prompt_go_resource_burner"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 17",
+      "weight": 1.0,
+      "source": "systemd_prompt_systemd_learning_plan",
+      "target": "systemd_prompt_quiz_section"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "lines 1-4",
+      "weight": 1.0,
+      "source": "systemd_prompt_systemd_learning_plan",
+      "target": "systemd_prompt_systemd"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "lines 1-5",
+      "weight": 1.0,
+      "source": "systemd_prompt_systemd_learning_plan",
+      "target": "systemd_prompt_systemd_run"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 7",
+      "weight": 1.0,
+      "source": "systemd_prompt_systemd_run",
+      "target": "systemd_prompt_go_resource_burner"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 9",
+      "weight": 1.0,
+      "source": "systemd_prompt_bwrap",
+      "target": "systemd_prompt_go_resource_burner"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 8",
+      "weight": 1.0,
+      "source": "systemd_prompt_cpu_and_resource_limits",
+      "target": "systemd_prompt_go_resource_burner"
+    },
+    {
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 8",
+      "weight": 1.0,
+      "source": "systemd_prompt_cgroups",
+      "target": "systemd_prompt_cpu_and_resource_limits"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md",
+      "source_location": "line 9",
+      "weight": 1.0,
+      "source": "systemd_prompt_filesystem_isolation",
+      "target": "systemd_prompt_bwrap"
+    },
+    {
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/resources.md",
+      "source_location": "line 1",
+      "weight": 1.0,
+      "source": "systemd_resources_resource_list",
+      "target": "systemd_resources_youtube_kzpm_rgaxos"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "systemd_resource_control_isolation_learning_flow",
+      "label": "Resource Control and Isolation Learning Flow",
+      "nodes": [
+        "systemd_prompt_systemd_run",
+        "systemd_prompt_go_resource_burner",
+        "systemd_prompt_cpu_and_resource_limits",
+        "systemd_prompt_cgroups",
+        "systemd_prompt_bwrap"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md"
+    },
+    {
+      "id": "systemd_learning_content_structure",
+      "label": "systemd Learning Content Structure",
+      "nodes": [
+        "systemd_prompt_concept_directory",
+        "systemd_prompt_demo_directory",
+        "systemd_prompt_quiz_section"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "linux/systemd/prompt.md"
+    }
+  ],
+  "built_at_commit": "34163638a0ad4dd0fd6b6c0103bc98b3202d8469"
+}

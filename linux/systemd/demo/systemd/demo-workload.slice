@@ -1,0 +1,9 @@
+[Unit]
+Description=Shared budget for demo workloads
+
+[Slice]
+CPUAccounting=yes
+CPUQuota=100%
+MemoryAccounting=yes
+MemoryMax=256M
+TasksMax=64
